@@ -17,100 +17,44 @@
     -webkit-user-select: none;
     -webkit-tap-highlight-color: transparent;
   }
-  .wrapper { text-align: center; padding: 10px; max-width: 100%; }
+  .container { text-align: center; padding: 10px; }
   h1 { color: #e94560; font-size: 2em; margin-bottom: 6px; }
   .info { display: flex; justify-content: center; gap: 30px; margin-bottom: 10px; }
   .info-box { color: #eee; font-size: 1em; }
   .info-box span { color: #f5c518; font-weight: bold; font-size: 1.2em; }
   canvas {
-    border: 3px solid #e94560;
-    border-radius: 8px;
-    background: #16213e;
-    display: block;
-    margin: 0 auto;
-    max-width: 100%;
-    height: auto;
+    border: 3px solid #e94560; border-radius: 8px;
+    background: #16213e; display: block; margin: 0 auto;
+    max-width: 100%; height: auto;
   }
   .tip { color: #888; margin-top: 10px; font-size: 0.85em; }
   button {
     margin: 8px 4px; padding: 10px 24px; font-size: 1em;
     background: #e94560; color: #fff; border: none; border-radius: 6px; cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
   }
   button:hover, button:active { background: #c73652; }
-  .back { background: transparent; border: 1px solid #888; color: #888; }
-  .back:hover, .back:active { border-color: #eee; color: #eee; background: transparent; }
-
-  .page { display: flex; align-items: flex-start; justify-content: center; gap: 15px; }
-  .ad-left, .ad-right { width: 140px; display: flex; flex-direction: column; gap: 12px; margin-top: 60px; }
-  .ad-side {
-    width: 140px; height: 160px;
-    border: 2px dashed #e94560; border-radius: 10px;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    color: #e94560; background: rgba(233,69,96,0.05); text-align: center;
-  }
-  .ad-side .icon { font-size: 1.5em; margin-bottom: 4px; }
-  .ad-side .title { font-size: 0.8em; font-weight: bold; }
-  .ad-side .phone { font-size: 0.7em; color: #f5c518; margin-top: 2px; }
-
-  .ad-bottom {
-    max-width: 680px; margin: 10px auto 0; height: 45px;
-    border: 2px dashed #f5c518; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    color: #f5c518; background: rgba(245,197,24,0.04); padding: 0 10px;
-  }
-  .ad-bottom .icon { font-size: 1.2em; }
-  .ad-bottom .title { font-size: 0.85em; font-weight: bold; }
-
-  @media (max-width: 750px) {
-    body { align-items: flex-start; padding-top: 10px; }
-    .wrapper { padding: 8px; }
+  .link { background: transparent; border: 1px solid #888; color: #888; }
+  .link:hover, .link:active { border-color: #eee; color: #eee; background: transparent; }
+  @media (max-width: 500px) {
     h1 { font-size: 1.5em; }
-    .info { gap: 20px; }
     .info-box { font-size: 0.85em; }
-    .info-box span { font-size: 1em; }
-    .tip { font-size: 0.75em; margin-top: 6px; }
-    button { padding: 8px 20px; font-size: 0.9em; }
-
-    .page { flex-direction: column; align-items: center; gap: 8px; }
-    .ad-left, .ad-right { flex-direction: row; width: auto; margin-top: 0; gap: 8px; }
-    .ad-right { order: 3; }
-    .ad-side { width: 140px; height: 60px; flex-shrink: 0; }
-    .ad-side .icon { font-size: 1em; margin-bottom: 0; }
-    .ad-side .title { font-size: 0.7em; }
-    .ad-side .phone { font-size: 0.65em; }
-    .ad-bottom { max-width: 100%; height: auto; min-height: 38px; font-size: 0.78em; }
+    button { padding: 8px 18px; font-size: 0.9em; }
   }
 </style>
 </head>
 <body>
-<div class="wrapper">
-  <div class="page">
-    <div class="ad-left">
-      <div class="ad-side"><span class="icon">💰</span><span class="title">广告位招租</span><span class="phone">193-3466-7775</span></div>
-      <div class="ad-side"><span class="icon">🎯</span><span class="title">广告位招租</span><span class="phone">193-3466-7775</span></div>
-    </div>
-
-    <div class="container">
-      <h1>打砖块</h1>
-      <div class="info">
-        <div class="info-box">分数 <span id="score">0</span></div>
-        <div class="info-box">生命 <span id="lives">3</span></div>
-      </div>
-      <canvas id="canvas" width="400" height="450"></canvas>
-      <p class="tip">手机触摸滑动控制挡板 | 点击画面发球</p>
-      <button onclick="restart()">重新开始</button>
-      <button class="back" onclick="location.href='leaderboard.html'">排行榜</button>
-      <button class="back" onclick="location.href='index.html'">返回首页</button>
-    </div>
-
-    <div class="ad-right">
-      <div class="ad-side"><span class="icon">🎮</span><span class="title">广告位招租</span><span class="phone">193-3466-7775</span></div>
-      <div class="ad-side"><span class="icon">🔥</span><span class="title">广告位招租</span><span class="phone">193-3466-7775</span></div>
-    </div>
+<div class="container">
+  <h1>打砖块</h1>
+  <div class="info">
+    <div class="info-box">分数 <span id="score">0</span></div>
+    <div class="info-box">生命 <span id="lives">3</span></div>
   </div>
-
-  <div class="ad-bottom"><span class="icon">📣</span><span class="title">广告位招租</span><span style="color:#f5c518;font-size:0.8em;">联系：193-3466-7775</span></div>
+  <canvas id="canvas" width="400" height="450"></canvas>
+  <p class="tip">手机触摸滑动控制挡板 | 点击画面发球</p>
+  <button onclick="restart()">重新开始</button>
+  <button class="link" onclick="location.href='leaderboard.html'">排行榜</button>
+  <button class="link" onclick="location.href='feedback.html'">留言板</button>
+  <button class="link" onclick="location.href='index.html'">返回首页</button>
 </div>
 
 <script>
@@ -124,8 +68,7 @@ const PADDLE_W = 80, PADDLE_H = 10, BALL_R = 6;
 function resizeCanvas() {
   if (window.innerWidth < 440) {
     const s = (window.innerWidth - 20) / CW;
-    canvas.style.width = (CW * s) + 'px';
-    canvas.style.height = (CH * s) + 'px';
+    canvas.style.width = (CW*s) + 'px'; canvas.style.height = (CH*s) + 'px';
   } else { canvas.style.width = ''; canvas.style.height = ''; }
 }
 resizeCanvas();
@@ -163,9 +106,7 @@ function step() {
   if (!running) return;
   if (leftHeld) paddle.x = Math.max(0, paddle.x - 6);
   if (rightHeld) paddle.x = Math.min(CW - paddle.w, paddle.x + 6);
-
   if (!ballLaunched) { ball.x = paddle.x + paddle.w/2; ball.y = paddle.y - BALL_R; draw(); return; }
-
   ball.x += ball.dx; ball.y += ball.dy;
   if (ball.x - ball.r <= 0 || ball.x + ball.r >= CW) ball.dx *= -1;
   if (ball.y - ball.r <= 0) ball.dy *= -1;
@@ -237,7 +178,6 @@ document.addEventListener('keyup', e => {
 
 canvas.addEventListener('mousemove', e => { paddle.x = Math.max(0, Math.min(CW - paddle.w, getCanvasPos(e) - paddle.w/2)); });
 canvas.addEventListener('click', () => { if (running && !ballLaunched) launchBall(); });
-
 canvas.addEventListener('touchmove', e => {
   e.preventDefault();
   paddle.x = Math.max(0, Math.min(CW - paddle.w, getCanvasPos(e.touches[0]) - paddle.w/2));

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>留言板</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    min-height: 100vh;
+    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+    color: #eee;
+    padding: 15px;
+  }
+  .wrapper { max-width: 650px; margin: 0 auto; }
+
+  h1 { text-align: center; font-size: 1.8em; margin-bottom: 5px; color: #4fc3f7; }
+  .subtitle { text-align: center; color: #888; font-size: 0.85em; margin-bottom: 18px; }
+
+  /* 留言表单 */
+  .form-box {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+  .form-box input, .form-box textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #555;
+    background: #1a1a2e;
+    color: #eee;
+    font-size: 0.9em;
+    font-family: inherit;
+    margin-bottom: 10px;
+    resize: vertical;
+  }
+  .form-box textarea { height: 80px; }
+  .form-box button {
+    padding: 8px 24px;
+    background: #4fc3f7;
+    color: #1a1a2e;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .form-box button:hover { background: #29b6f6; }
+
+  /* 留言列表 */
+  .msg-list { margin-bottom: 20px; }
+  .msg-item {
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    transition: background 0.2s;
+  }
+  .msg-item:hover { background: rgba(255,255,255,0.05); }
+  .msg-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .msg-name { font-weight: bold; font-size: 0.9em; color: #f5c518; }
+  .msg-date { font-size: 0.7em; color: #555; }
+  .msg-content { font-size: 0.9em; color: #ccc; line-height: 1.5; word-break: break-word; }
+
+  .empty-msg { text-align: center; color: #555; padding: 30px; font-size: 0.9em; }
+
+  .back {
+    display: inline-block; margin-top: 10px; padding: 8px 22px;
+    border: 1px solid #888; color: #888; border-radius: 6px;
+    text-decoration: none; font-size: 0.9em; transition: all 0.2s;
+  }
+  .back:hover { border-color: #eee; color: #eee; }
+  .center { text-align: center; }
+
+  @media (max-width: 500px) {
+    h1 { font-size: 1.4em; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <h1>留言板</h1>
+  <p class="subtitle">想要什么新游戏？在这里告诉我们</p>
+
+  <div class="form-box">
+    <input id="msgName" placeholder="你的昵称" maxlength="10">
+    <textarea id="msgContent" placeholder="写下你想玩的新游戏或建议..." maxlength="200"></textarea>
+    <button onclick="submitMsg()">提交留言</button>
+  </div>
+
+  <div class="msg-list" id="msgList">
+    <div class="empty-msg">还没有留言，快来抢沙发吧</div>
+  </div>
+
+  <div class="center">
+    <a href="index.html" class="back">返回首页</a>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'guestbook_msgs';
+
+function getMsgs() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+
+function saveMsgs(msgs) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(msgs.slice(0, 100)));
+}
+
+function submitMsg() {
+  const name = document.getElementById('msgName').value.trim();
+  const content = document.getElementById('msgContent').value.trim();
+  if (!name) { alert('请填写昵称'); return; }
+  if (!content) { alert('请填写留言内容'); return; }
+
+  const msgs = getMsgs();
+  msgs.unshift({ name, content, date: Date.now() });
+  saveMsgs(msgs);
+
+  document.getElementById('msgName').value = '';
+  document.getElementById('msgContent').value = '';
+  render();
+}
+
+function render() {
+  const msgs = getMsgs();
+  const container = document.getElementById('msgList');
+
+  if (msgs.length === 0) {
+    container.innerHTML = '<div class="empty-msg">还没有留言，快来抢沙发吧</div>';
+    return;
+  }
+
+  container.innerHTML = msgs.map(m => {
+    const date = new Date(m.date);
+    const dateStr = `${date.getMonth()+1}/${date.getDate()} ${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')}`;
+    return `
+      <div class="msg-item">
+        <div class="msg-header">
+          <span class="msg-name">${escapeHtml(m.name)}</span>
+          <span class="msg-date">${dateStr}</span>
+        </div>
+        <div class="msg-content">${escapeHtml(m.content)}</div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('msgName').value = localStorage.getItem('player_name') || '';
+}
+
+function escapeHtml(s) {
+  const div = document.createElement('div');
+  div.textContent = s;
+  return div.innerHTML;
+}
+
+render();
+</script>
+</body>
+</html>

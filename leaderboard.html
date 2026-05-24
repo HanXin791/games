@@ -13,39 +13,24 @@
     color: #eee;
     padding: 15px;
   }
-  .wrapper { max-width: 700px; margin: 0 auto; text-align: center; }
-
-  /* 顶部广告 */
-  .ad-top {
-    height: 45px;
-    border: 2px dashed #4fc3f7; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    color: #4fc3f7; background: rgba(79,195,247,0.04);
-    margin-bottom: 15px; flex-wrap: wrap;
-  }
-  .ad-top .icon { font-size: 1.2em; }
-  .ad-top .title { font-size: 0.85em; font-weight: bold; }
-
+  .wrapper { max-width: 650px; margin: 0 auto; text-align: center; }
   h1 { font-size: 1.8em; margin-bottom: 5px; color: #f5c518; }
   .subtitle { color: #888; font-size: 0.85em; margin-bottom: 15px; }
 
-  /* 玩家名 */
-  .player-setup {
+  .top-bar {
     display: flex; align-items: center; justify-content: center; gap: 8px;
-    margin-bottom: 18px; flex-wrap: wrap;
+    margin-bottom: 15px; flex-wrap: wrap;
   }
-  .player-setup input {
+  .top-bar input {
     padding: 6px 12px; border-radius: 6px;
     border: 1px solid #888; background: #1a1a2e; color: #eee;
-    font-size: 0.9em; width: 140px; text-align: center;
+    font-size: 0.9em; width: 130px; text-align: center;
   }
-  .player-setup button {
+  .top-bar button {
     padding: 6px 14px; font-size: 0.85em;
     background: #4caf50; color: #fff; border: none; border-radius: 6px; cursor: pointer;
   }
-  .player-setup .name-label { color: #888; font-size: 0.85em; }
 
-  /* Tab 切换 */
   .tabs { display: flex; justify-content: center; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; }
   .tab {
     padding: 6px 14px; border: 1px solid #555; border-radius: 20px;
@@ -54,7 +39,6 @@
   }
   .tab.active { background: #e94560; border-color: #e94560; color: #fff; }
 
-  /* 排行列表 */
   .rank-list { text-align: left; }
   .rank-item {
     display: flex; align-items: center;
@@ -62,9 +46,7 @@
     margin-bottom: 6px;
     background: rgba(255,255,255,0.03);
     gap: 10px;
-    transition: background 0.2s;
   }
-  .rank-item:hover { background: rgba(255,255,255,0.06); }
   .rank-num {
     width: 28px; height: 28px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
@@ -74,29 +56,18 @@
   .rank-num.silver { background: #bdbdbd; color: #1a1a2e; }
   .rank-num.bronze { background: #cd7f32; color: #fff; }
   .rank-num.normal { background: rgba(255,255,255,0.1); color: #888; }
-
   .rank-info { flex: 1; min-width: 0; }
   .rank-name { font-weight: bold; font-size: 0.9em; }
   .rank-date { font-size: 0.7em; color: #666; }
   .rank-score { font-weight: bold; color: #f5c518; font-size: 1em; flex-shrink: 0; }
-
   .empty-msg { text-align: center; color: #555; padding: 30px; font-size: 0.9em; }
 
-  .back {
-    display: inline-block; margin-top: 15px; padding: 8px 22px;
-    border: 1px solid #888; color: #888; border-radius: 6px;
-    text-decoration: none; font-size: 0.9em; transition: all 0.2s;
+  .nav-links { margin-top: 15px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+  .nav-links a {
+    padding: 8px 20px; border: 1px solid #888; color: #888; border-radius: 6px;
+    text-decoration: none; font-size: 0.9em;
   }
-  .back:hover { border-color: #eee; color: #eee; }
-
-  .ad-bottom {
-    max-width: 700px; margin: 12px auto 0; height: 42px;
-    border: 2px dashed #f5c518; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center; gap: 6px;
-    color: #f5c518; background: rgba(245,197,24,0.04); padding: 0 10px;
-  }
-  .ad-bottom .icon { font-size: 1.1em; }
-  .ad-bottom .title { font-size: 0.8em; font-weight: bold; }
+  .nav-links a:hover { border-color: #eee; color: #eee; }
 
   @media (max-width: 500px) {
     h1 { font-size: 1.4em; }
@@ -107,18 +78,11 @@
 </head>
 <body>
 <div class="wrapper">
-  <div class="ad-top">
-    <span class="icon">📢</span>
-    <span class="title">广告位招租</span>
-    <span style="color:#4fc3f7;font-size:0.8em;">联系：193-3466-7775</span>
-  </div>
-
   <h1>排行榜</h1>
   <p class="subtitle" id="totalPlayers"></p>
 
-  <div class="player-setup">
-    <span class="name-label">昵称：</span>
-    <input id="playerName" placeholder="输入你的昵称" maxlength="10">
+  <div class="top-bar">
+    <input id="playerName" placeholder="输入昵称" maxlength="10">
     <button onclick="saveName()">保存</button>
   </div>
 
@@ -135,35 +99,28 @@
     <div class="empty-msg">还没有记录，快去玩游戏吧</div>
   </div>
 
-  <a href="index.html" class="back">返回首页</a>
-
-  <div class="ad-bottom">
-    <span class="icon">📣</span>
-    <span class="title">广告位招租</span>
-    <span style="color:#f5c518;font-size:0.8em;">联系：193-3466-7775</span>
+  <div class="nav-links">
+    <a href="index.html">返回首页</a>
+    <a href="feedback.html">留言板</a>
   </div>
 </div>
 
 <script>
 const GAMES = {
-  all:   { name: '全部总榜', icon: '' },
-  snake:    { name: '贪吃蛇', icon: '🐍' },
-  breakout: { name: '打砖块', icon: '🧱' },
-  '2048':   { name: '2048', icon: '🔢' },
-  tetris:   { name: '俄罗斯方块', icon: '🧩' },
-  farm:     { name: '开心种菜', icon: '🌱' },
+  all: { name: '全部总榜', icon: '' },
+  snake: { name: '贪吃蛇', icon: '' },
+  breakout: { name: '打砖块', icon: '' },
+  '2048': { name: '2048', icon: '' },
+  tetris: { name: '俄罗斯方块', icon: '' },
+  farm: { name: '开心种菜', icon: '' },
 };
-
 let currentTab = 'all';
 
-// 读取排行榜
 function getLeaderboard(game) {
-  try {
-    return JSON.parse(localStorage.getItem('lb_' + game) || '[]');
-  } catch(e) { return []; }
+  try { return JSON.parse(localStorage.getItem('lb_' + game) || '[]'); }
+  catch(e) { return []; }
 }
 
-// 聚合总榜
 function getAllScores() {
   const all = [];
   for (const key of Object.keys(GAMES)) {
@@ -177,7 +134,9 @@ function getAllScores() {
 function switchTab(tab) {
   currentTab = tab;
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelector(`.tab:nth-child(${Object.keys(GAMES).indexOf(tab) + 1})`)?.classList.add('active');
+  const tabs = ['all','snake','breakout','2048','tetris','farm'];
+  const idx = tabs.indexOf(tab);
+  if (idx >= 0) document.querySelectorAll('.tab')[idx].classList.add('active');
   render();
 }
 
@@ -189,37 +148,31 @@ function render() {
     list = getLeaderboard(currentTab);
     list.sort((a, b) => b.score - a.score);
   }
-
   const container = document.getElementById('rankList');
-
   if (list.length === 0) {
     container.innerHTML = '<div class="empty-msg">还没有记录，快去玩游戏吧</div>';
     return;
   }
-
   container.innerHTML = list.map((entry, i) => {
     const numClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'normal';
-    const gameLabel = currentTab === 'all' ? ` <span style="color:#888;font-size:0.75em;">[${GAMES[entry.game]?.icon || ''} ${GAMES[entry.game]?.name || entry.game}]</span>` : '';
+    const gameLabel = currentTab === 'all' ? ` <span style="color:#888;font-size:0.75em;">[${GAMES[entry.game]?.name || entry.game}]</span>` : '';
     const date = entry.date ? new Date(entry.date).toLocaleDateString('zh-CN') : '';
-    return `
-      <div class="rank-item">
-        <div class="rank-num ${numClass}">${i + 1}</div>
-        <div class="rank-info">
-          <div class="rank-name">${escapeHtml(entry.name)}${gameLabel}</div>
-          <div class="rank-date">${date}</div>
-        </div>
-        <div class="rank-score">${entry.score} 分</div>
+    return `<div class="rank-item">
+      <div class="rank-num ${numClass}">${i + 1}</div>
+      <div class="rank-info">
+        <div class="rank-name">${escapeHtml(entry.name)}${gameLabel}</div>
+        <div class="rank-date">${date}</div>
       </div>
-    `;
+      <div class="rank-score">${entry.score} 分</div>
+    </div>`;
   }).join('');
 
-  // 统计
   const names = new Set();
   for (const key of Object.keys(GAMES)) {
     if (key === 'all') continue;
     getLeaderboard(key).forEach(e => names.add(e.name));
   }
-  document.getElementById('totalPlayers').textContent = names.size > 0 ? `${names.size} 位玩家，${list.length} 条记录` : '';
+  document.getElementById('totalPlayers').textContent = names.size > 0 ? `${names.size} 位玩家上榜` : '';
 }
 
 function escapeHtml(s) {
@@ -228,14 +181,11 @@ function escapeHtml(s) {
   return div.innerHTML;
 }
 
-// 玩家名
 function saveName() {
   const name = document.getElementById('playerName').value.trim();
   if (!name) return;
   localStorage.setItem('player_name', name);
-  document.getElementById('playerName').value = name;
 }
-
 document.getElementById('playerName').value = localStorage.getItem('player_name') || '';
 
 render();
