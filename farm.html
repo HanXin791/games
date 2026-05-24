@@ -144,7 +144,8 @@
       <div class="farm" id="farm"></div>
       <p class="tip">点击空地播种 | 等蔬菜成熟后点击收获 | 成熟菜不收获会枯萎哦</p>
       <button onclick="buySeeds()">买种子 (5金币/个)</button>
-      <button class="back" onclick="location.href='games-home.html'">返回首页</button>
+      <button class="back" onclick="location.href='leaderboard.html'">排行榜</button>
+      <button class="back" onclick="location.href='index.html'">返回首页</button>
     </div>
 
     <div class="ad-right">
@@ -331,6 +332,21 @@ setInterval(() => {
   render();
   updateUI();
 }, 1000);
+
+function saveScore() {
+  if (gold <= 0) return;
+  const name = localStorage.getItem('player_name') || '匿名玩家';
+  const list = JSON.parse(localStorage.getItem('lb_farm') || '[]');
+  // 更新或新增
+  const exist = list.find(e => e.name === name);
+  if (exist) exist.score = Math.max(exist.score, gold);
+  else list.push({ name, score: gold, date: Date.now() });
+  list.sort((a, b) => b.score - a.score);
+  localStorage.setItem('lb_farm', JSON.stringify(list.slice(0, 30)));
+}
+window.addEventListener('beforeunload', saveScore);
+// 每30秒自动存档一次
+setInterval(saveScore, 30000);
 
 load();
 updateUI();

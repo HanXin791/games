@@ -130,7 +130,8 @@
         <button class="ctrl-btn" id="btn-drop" style="font-size:0.9em;">硬降</button>
       </div>
       <button onclick="restart()">重新开始</button>
-      <button class="back" onclick="location.href='games-home.html'">返回首页</button>
+      <button class="back" onclick="location.href='leaderboard.html'">排行榜</button>
+      <button class="back" onclick="location.href='index.html'">返回首页</button>
     </div>
 
     <div class="ad-right">
@@ -253,8 +254,18 @@ function hardDrop() {
   lock(); draw();
 }
 
+function saveScore(game, s) {
+  if (s <= 0) return;
+  const name = localStorage.getItem('player_name') || '匿名玩家';
+  const list = JSON.parse(localStorage.getItem('lb_' + game) || '[]');
+  list.push({ name, score: s, date: Date.now() });
+  list.sort((a, b) => b.score - a.score);
+  localStorage.setItem('lb_' + game, JSON.stringify(list.slice(0, 30)));
+}
+
 function gameOver() {
   running=false; clearInterval(timer); draw();
+  saveScore('tetris', score);
   ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillRect(0,0,240,432);
   ctx.fillStyle='#e94560'; ctx.font='bold 24px "Microsoft YaHei"'; ctx.textAlign='center';
   ctx.fillText('游戏结束',120,216);

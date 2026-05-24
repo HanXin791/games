@@ -115,6 +115,13 @@
   <h1>小游戏合集</h1>
   <p class="subtitle">选择一个游戏开始玩吧</p>
 
+  <div class="player-setup">
+    <span style="color:#888;font-size:0.85em;">昵称：</span>
+    <input id="playerName" placeholder="输入昵称上榜" maxlength="10" style="padding:6px 12px;border-radius:6px;border:1px solid #888;background:#1a1a2e;color:#eee;font-size:0.9em;width:130px;text-align:center;">
+    <button onclick="saveName()" style="padding:6px 14px;font-size:0.85em;background:#4caf50;color:#fff;border:none;border-radius:6px;cursor:pointer;">保存</button>
+    <a href="leaderboard.html" style="margin-left:10px;padding:6px 16px;border:1px solid #f5c518;color:#f5c518;border-radius:20px;text-decoration:none;font-size:0.85em;">排行榜</a>
+  </div>
+
   <div class="games-grid">
     <a href="snake-game.html" class="game-card">
       <span class="icon">🐍</span>
@@ -151,5 +158,13 @@
 
   <p class="footer">更多游戏即将上线 · 广告合作：193-3466-7775</p>
 </div>
+<script>
+function saveName() {
+  const name = document.getElementById('playerName').value.trim();
+  if (!name) return;
+  localStorage.setItem('player_name', name);
+}
+document.getElementById('playerName').value = localStorage.getItem('player_name') || '';
+</script>
 </body>
 </html>

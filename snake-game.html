@@ -110,7 +110,8 @@
       <canvas id="canvas" width="400" height="400"></canvas>
       <p class="tip">方向键 ↑ ↓ ← → 控制 | 空格暂停 | 手机触屏滑动</p>
       <button onclick="restart()">重新开始</button>
-      <button class="back" onclick="location.href='games-home.html'">返回首页</button>
+      <button class="back" onclick="location.href='leaderboard.html'">排行榜</button>
+      <button class="back" onclick="location.href='index.html'">返回首页</button>
     </div>
 
     <div class="ad-right">
@@ -184,8 +185,18 @@ function step() {
   draw();
 }
 
+function saveScore(game, s) {
+  if (s <= 0) return;
+  const name = localStorage.getItem('player_name') || '匿名玩家';
+  const list = JSON.parse(localStorage.getItem('lb_' + game) || '[]');
+  list.push({ name, score: s, date: Date.now() });
+  list.sort((a, b) => b.score - a.score);
+  localStorage.setItem('lb_' + game, JSON.stringify(list.slice(0, 30)));
+}
+
 function gameOver() {
   running = false; clearInterval(timer); draw();
+  saveScore('snake', score);
   ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0, 0, 400, 400);
   ctx.fillStyle = '#e94560'; ctx.font = 'bold 28px "Microsoft YaHei"'; ctx.textAlign = 'center';
   ctx.fillText('游戏结束', 200, 190);
