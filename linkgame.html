@@ -85,6 +85,7 @@
   <div class="info">
     <div class="info-box">关卡 <span id="level">1</span></div>
     <div class="info-box">剩余 <span id="remain">0</span> 对</div>
+    <div class="info-box" id="timerBox">时间 <span id="timer" style="color:#4fc3f7;">--</span></div>
     <div class="info-box">最高关卡 <span id="best">1</span></div>
   </div>
   <div class="game-area" id="gameArea">
@@ -121,6 +122,58 @@ let currentLevel = 1;
 let bestLevel = 1;
 let pairsLeft = 0;
 let hintsLeft = 3;
+let timeLeft = 0;
+let totalTime = 0;
+let timerInterval = null;
+
+// 根据关卡计算时间限制（秒）
+function calcTime(lv) {
+  const cfg = getLevelConfig(lv);
+  const pairs = cfg.rows * cfg.cols / 2;
+  // 前期每对8秒，后期逐步缩减到每对5秒
+  const secPerPair = Math.max(5, 8 - Math.floor((lv - 1) / 5));
+  return Math.max(30, pairs * secPerPair);
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  totalTime = calcTime(currentLevel);
+  timeLeft = totalTime;
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      timeUp();
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+}
+
+function updateTimerDisplay() {
+  const el = document.getElementById('timer');
+  const box = document.getElementById('timerBox');
+  const m = Math.floor(timeLeft / 60);
+  const s = timeLeft % 60;
+  el.textContent = m + ':' + String(s).padStart(2, '0');
+  // 时间紧张变红
+  if (timeLeft < 10) el.style.color = '#e94560';
+  else if (timeLeft < 30) el.style.color = '#f5c518';
+  else el.style.color = '#4fc3f7';
+}
+
+function timeUp() {
+  stopTimer();
+  saveBest();
+  alert('时间到！闯到第 ' + currentLevel + ' 关，不错！');
+  currentLevel = 1;
+  init();
+}
 
 // Level config: more tiles and more types as level increases
 function getLevelConfig(lv) {
@@ -186,6 +239,7 @@ function init() {
   bestLevel = parseInt(localStorage.getItem('link_best') || '1');
   document.getElementById('best').textContent = bestLevel;
   render();
+  startTimer();
 }
 
 // Path finding: check if (r1,c1) can connect to (r2,c2) with ≤2 turns
