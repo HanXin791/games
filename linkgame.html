@@ -100,7 +100,19 @@
 </div>
 
 <script>
-const ICONS = ['🍎','🍊','🍋','🍇','🍒','🍓','🥝','🍑','🥭','🍍','🍌','🥥','🫐','🥕','🌽','🍅','🥬','🌶','🌸','🌺','🌻','🌹','🐠','🐤','🐸','🐹','🐶','🐺','🐷','🐛','🐜','🐝','🦋'];
+// 用 Unicode 码点生成表情，避免编码问题
+const ICONS = (function() {
+  const codes = [
+    0x1F34E,0x1F34A,0x1F34B,0x1F347,0x1F352,0x1F353,  // 水果
+    0x1F95D,0x1F351,0x1F96D,0x1F34D,0x1F34C,0x1F965,  // 热带水果
+    0x1FAD0,0x1F955,0x1F33D,0x1F345,0x1F96C,          // 蔬菜
+    0x1F336,0x1F338,0x1F33A,0x1F33B,                    // 花卉
+    0x1F339,0x1F420,0x1F424,0x1F438,0x1F439,            // 动物
+    0x1F436,0x1F43A,0x1F437,0x1F41B,0x1F41C,            // 更多动物
+    0x1F41D,0x1F98B,0x1F98A,0x1F992                     // 昆虫
+  ];
+  return codes.map(c => String.fromCodePoint(c));
+})();
 
 let board = []; // board[r][c] = iconIndex (0=empty)
 let ROWS, COLS; // visible grid
