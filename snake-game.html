@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>贪吃蛇</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1a2e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .wrapper { text-align: center; padding: 10px; max-width: 100%; }
+  h1 { color: #e94560; font-size: 2em; margin-bottom: 6px; }
+  .info { display: flex; justify-content: center; gap: 30px; margin-bottom: 10px; }
+  .info-box { color: #eee; font-size: 1em; }
+  .info-box span { color: #f5c518; font-weight: bold; font-size: 1.2em; }
+  canvas {
+    border: 3px solid #e94560;
+    border-radius: 8px;
+    background: #16213e;
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    height: auto;
+  }
+  .tip { color: #888; margin-top: 10px; font-size: 0.85em; }
+  button {
+    margin: 8px 4px; padding: 10px 24px; font-size: 1em;
+    background: #e94560; color: #fff; border: none; border-radius: 6px; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:hover, button:active { background: #c73652; }
+  .back { background: transparent; border: 1px solid #888; color: #888; }
+  .back:hover, .back:active { border-color: #eee; color: #eee; background: transparent; }
+
+  /* 广告 - 桌面：侧边栏 */
+  .page { display: flex; align-items: flex-start; justify-content: center; gap: 15px; }
+  .ad-left, .ad-right { width: 140px; display: flex; flex-direction: column; gap: 12px; margin-top: 60px; }
+  .ad-side {
+    width: 140px; height: 160px;
+    border: 2px dashed #e94560; border-radius: 10px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: #e94560; background: rgba(233,69,96,0.05);
+    text-align: center;
+  }
+  .ad-side .icon { font-size: 1.5em; margin-bottom: 4px; }
+  .ad-side .title { font-size: 0.8em; font-weight: bold; }
+  .ad-side .phone { font-size: 0.7em; color: #f5c518; margin-top: 2px; }
+
+  .ad-bottom {
+    max-width: 680px; margin: 10px auto 0; height: 45px;
+    border: 2px dashed #f5c518; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    color: #f5c518; background: rgba(245,197,24,0.04);
+    padding: 0 10px;
+  }
+  .ad-bottom .icon { font-size: 1.2em; }
+  .ad-bottom .title { font-size: 0.85em; font-weight: bold; }
+
+  /* ===== 手机布局 ===== */
+  @media (max-width: 750px) {
+    body { align-items: flex-start; padding-top: 10px; }
+    .wrapper { padding: 8px; }
+    h1 { font-size: 1.5em; }
+    .info { gap: 20px; }
+    .info-box { font-size: 0.85em; }
+    .info-box span { font-size: 1em; }
+    .tip { font-size: 0.75em; margin-top: 8px; }
+    button { padding: 8px 20px; font-size: 0.9em; }
+
+    /* 侧边广告变为上下排列 */
+    .page { flex-direction: column; align-items: center; gap: 8px; }
+    .ad-left, .ad-right {
+      flex-direction: row;
+      width: auto;
+      margin-top: 0;
+      gap: 8px;
+    }
+    .ad-right { order: 3; }
+    .ad-side { width: 140px; height: 60px; flex-shrink: 0; }
+    .ad-side .icon { font-size: 1em; margin-bottom: 0; }
+    .ad-side .title { font-size: 0.7em; }
+    .ad-side .phone { font-size: 0.65em; }
+    .ad-bottom { max-width: 100%; height: auto; min-height: 38px; font-size: 0.78em; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="page">
+    <div class="ad-left">
+      <div class="ad-side"><span class="icon">💰</span><span class="title">广告位招租</span><span class="phone">193-3466-7775</span></div>
+      <div class="ad-side"><span class="icon">🎯</span><span class="title">广告位招租</span><span class="phone">193-3466-7775</span></div>
+    </div>
+
+    <div class="container">
+      <h1>贪吃蛇</h1>
+      <div class="info">
+        <div class="info-box">分数 <span id="score">0</span></div>
+        <div class="info-box">最高分 <span id="best">0</span></div>
+      </div>
+      <canvas id="canvas" width="400" height="400"></canvas>
+      <p class="tip">方向键 ↑ ↓ ← → 控制 | 空格暂停 | 手机触屏滑动</p>
+      <button onclick="restart()">重新开始</button>
+      <button class="back" onclick="location.href='games-home.html'">返回首页</button>
+    </div>
+
+    <div class="ad-right">
+      <div class="ad-side"><span class="icon">🎮</span><span class="title">广告位招租</span><span class="phone">193-3466-7775</span></div>
+      <div class="ad-side"><span class="icon">🔥</span><span class="title">广告位招租</span><span class="phone">193-3466-7775</span></div>
+    </div>
+  </div>
+
+  <div class="ad-bottom"><span class="icon">📣</span><span class="title">广告位招租</span><span style="color:#f5c518;font-size:0.8em;">联系：193-3466-7775</span></div>
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+const GRID = 20;
+const COLS = canvas.width / GRID;
+const ROWS = canvas.height / GRID;
+
+let snake, food, dir, nextDir, score, best, running, paused, timer;
+
+// 手机端缩放canvas
+function resizeCanvas() {
+  if (window.innerWidth < 440) {
+    const maxW = window.innerWidth - 20;
+    canvas.style.width = maxW + 'px';
+    canvas.style.height = maxW + 'px';
+  } else {
+    canvas.style.width = '';
+    canvas.style.height = '';
+  }
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function init() {
+  snake = [{x: 5, y: 10},{x: 4, y: 10},{x: 3, y: 10}];
+  dir = {x: 1, y: 0};
+  nextDir = {x: 1, y: 0};
+  score = 0; running = true; paused = false;
+  document.getElementById('score').textContent = '0';
+  best = parseInt(localStorage.getItem('snake_best') || '0');
+  document.getElementById('best').textContent = best;
+  spawnFood();
+  startLoop();
+}
+
+function spawnFood() {
+  const occupied = new Set(snake.map(s => `${s.x},${s.y}`));
+  const free = [];
+  for (let x = 0; x < COLS; x++)
+    for (let y = 0; y < ROWS; y++)
+      if (!occupied.has(`${x},${y}`)) free.push({x, y});
+  food = free[Math.floor(Math.random() * free.length)];
+}
+
+function step() {
+  if (paused) return;
+  if (!(nextDir.x === -dir.x && nextDir.y === -dir.y) &&
+      !(nextDir.x === 0 && nextDir.y === 0)) dir = nextDir;
+  const head = {x: snake[0].x + dir.x, y: snake[0].y + dir.y};
+  if (head.x < 0 || head.x >= COLS || head.y < 0 || head.y >= ROWS) return gameOver();
+  if (snake.some(s => s.x === head.x && s.y === head.y)) return gameOver();
+  snake.unshift(head);
+  if (head.x === food.x && head.y === food.y) {
+    score += 10;
+    document.getElementById('score').textContent = score;
+    if (score > best) { best = score; localStorage.setItem('snake_best', best); document.getElementById('best').textContent = best; }
+    spawnFood();
+  } else { snake.pop(); }
+  draw();
+}
+
+function gameOver() {
+  running = false; clearInterval(timer); draw();
+  ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0, 0, 400, 400);
+  ctx.fillStyle = '#e94560'; ctx.font = 'bold 28px "Microsoft YaHei"'; ctx.textAlign = 'center';
+  ctx.fillText('游戏结束', 200, 190);
+  ctx.fillStyle = '#ccc'; ctx.font = '16px "Microsoft YaHei"';
+  ctx.fillText('点击"重新开始"再来一局', 200, 230);
+}
+
+function draw() {
+  ctx.clearRect(0, 0, 400, 400);
+  ctx.strokeStyle = 'rgba(255,255,255,0.03)'; ctx.lineWidth = 0.5;
+  for (let x = 0; x <= COLS; x++) { ctx.beginPath(); ctx.moveTo(x*GRID,0); ctx.lineTo(x*GRID,400); ctx.stroke(); }
+  for (let y = 0; y <= ROWS; y++) { ctx.beginPath(); ctx.moveTo(0,y*GRID); ctx.lineTo(400,y*GRID); ctx.stroke(); }
+  ctx.fillStyle = '#f5c518'; ctx.shadowColor = '#f5c518'; ctx.shadowBlur = 8;
+  ctx.beginPath(); ctx.arc(food.x*GRID+GRID/2, food.y*GRID+GRID/2, GRID/2-1, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur = 0;
+  snake.forEach((s, i) => {
+    const ratio = 1 - i/(snake.length+8);
+    ctx.fillStyle = `rgb(${Math.floor(0+ratio*100)},${Math.floor(200+ratio*55)},${Math.floor(80+ratio*100)})`;
+    ctx.fillRect(s.x*GRID+1, s.y*GRID+1, GRID-2, GRID-2);
+  });
+}
+
+function startLoop() { clearInterval(timer); timer = setInterval(() => { if (running) step(); }, 100); }
+function restart() { clearInterval(timer); init(); }
+
+document.addEventListener('keydown', e => {
+  if (!running) return;
+  const map = { 'ArrowUp':{x:0,y:-1}, 'ArrowDown':{x:0,y:1}, 'ArrowLeft':{x:-1,y:0}, 'ArrowRight':{x:1,y:0},
+                'w':{x:0,y:-1}, 'W':{x:0,y:-1}, 's':{x:0,y:1}, 'S':{x:0,y:1}, 'a':{x:-1,y:0}, 'A':{x:-1,y:0}, 'd':{x:1,y:0}, 'D':{x:1,y:0} };
+  if (map[e.key]) { e.preventDefault(); nextDir = map[e.key]; }
+  if (e.key === ' ') { e.preventDefault(); paused = !paused; }
+});
+
+// 手机触摸
+let touchStart = null;
+canvas.addEventListener('touchstart', e => { touchStart = {x: e.touches[0].clientX, y: e.touches[0].clientY}; }, {passive: false});
+canvas.addEventListener('touchmove', e => e.preventDefault(), {passive: false});
+canvas.addEventListener('touchend', e => {
+  if (!touchStart || !running) return;
+  const dx = e.changedTouches[0].clientX - touchStart.x;
+  const dy = e.changedTouches[0].clientY - touchStart.y;
+  if (Math.abs(dx) > Math.abs(dy)) nextDir = dx > 0 ? {x:1,y:0} : {x:-1,y:0};
+  else nextDir = dy > 0 ? {x:0,y:1} : {x:0,y:-1};
+  touchStart = null;
+});
+
+init();
+</script>
+</body>
+</html>

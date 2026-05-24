@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>2048</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1a2e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .wrapper { text-align: center; padding: 10px; max-width: 100%; }
+  h1 { color: #e94560; font-size: 2em; margin-bottom: 6px; }
+  .info { display: flex; justify-content: center; gap: 30px; margin-bottom: 10px; }
+  .info-box { color: #eee; font-size: 1em; }
+  .info-box span { color: #f5c518; font-weight: bold; font-size: 1.2em; }
+  .board {
+    width: 340px; height: 340px;
+    background: #bbada0;
+    border-radius: 10px;
+    padding: 8px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 8px;
+    touch-action: none;
+  }
+  .tile {
+    background: #cdc1b4;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.5em;
+    color: #776e65;
+    transition: all 0.1s;
+  }
+  .tip { color: #888; margin-top: 10px; font-size: 0.85em; }
+  button {
+    margin: 8px 4px; padding: 10px 24px; font-size: 1em;
+    background: #e94560; color: #fff; border: none; border-radius: 6px; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:hover, button:active { background: #c73652; }
+  .back { background: transparent; border: 1px solid #888; color: #888; }
+  .back:hover, .back:active { border-color: #eee; color: #eee; background: transparent; }
+
+  .page { display: flex; align-items: flex-start; justify-content: center; gap: 15px; }
+  .ad-left, .ad-right { width: 140px; display: flex; flex-direction: column; gap: 12px; margin-top: 60px; }
+  .ad-side {
+    width: 140px; height: 160px;
+    border: 2px dashed #e94560; border-radius: 10px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: #e94560; background: rgba(233,69,96,0.05); text-align: center;
+  }
+  .ad-side .icon { font-size: 1.5em; margin-bottom: 4px; }
+  .ad-side .title { font-size: 0.8em; font-weight: bold; }
+  .ad-side .phone { font-size: 0.7em; color: #f5c518; margin-top: 2px; }
+
+  .ad-bottom {
+    max-width: 680px; margin: 10px auto 0; height: 45px;
+    border: 2px dashed #f5c518; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    color: #f5c518; background: rgba(245,197,24,0.04); padding: 0 10px;
+  }
+  .ad-bottom .icon { font-size: 1.2em; }
+  .ad-bottom .title { font-size: 0.85em; font-weight: bold; }
+
+  @media (max-width: 750px) {
+    body { align-items: flex-start; padding-top: 10px; }
+    .wrapper { padding: 8px; }
+    h1 { font-size: 1.5em; }
+    .info { gap: 20px; }
+    .info-box { font-size: 0.85em; }
+    .info-box span { font-size: 1em; }
+    .board { width: min(340px, calc(100vw - 24px)); height: min(340px, calc(100vw - 24px)); gap: 5px; padding: 5px; }
+    .tile { font-size: 1.2em; }
+    .tip { font-size: 0.75em; margin-top: 6px; }
+    button { padding: 8px 20px; font-size: 0.9em; }
+
+    .page { flex-direction: column; align-items: center; gap: 8px; }
+    .ad-left, .ad-right { flex-direction: row; width: auto; margin-top: 0; gap: 8px; }
+    .ad-right { order: 3; }
+    .ad-side { width: 140px; height: 60px; flex-shrink: 0; }
+    .ad-side .icon { font-size: 1em; margin-bottom: 0; }
+    .ad-side .title { font-size: 0.7em; }
+    .ad-side .phone { font-size: 0.65em; }
+    .ad-bottom { max-width: 100%; height: auto; min-height: 38px; font-size: 0.78em; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="page">
+    <div class="ad-left">
+      <div class="ad-side"><span class="icon">💰</span><span class="title">广告位招租</span><span class="phone">193-3466-7775</span></div>
+      <div class="ad-side"><span class="icon">🎯</span><span class="title">广告位招租</span><span class="phone">193-3466-7775</span></div>
+    </div>
+
+    <div class="container">
+      <h1>2048</h1>
+      <div class="info">
+        <div class="info-box">分数 <span id="score">0</span></div>
+        <div class="info-box">最高分 <span id="best">0</span></div>
+      </div>
+      <div class="board" id="board"></div>
+      <p class="tip">手机滑动操作 | 键盘方向键也可以</p>
+      <button onclick="restart()">重新开始</button>
+      <button class="back" onclick="location.href='games-home.html'">返回首页</button>
+    </div>
+
+    <div class="ad-right">
+      <div class="ad-side"><span class="icon">🎮</span><span class="title">广告位招租</span><span class="phone">193-3466-7775</span></div>
+      <div class="ad-side"><span class="icon">🔥</span><span class="title">广告位招租</span><span class="phone">193-3466-7775</span></div>
+    </div>
+  </div>
+
+  <div class="ad-bottom"><span class="icon">📣</span><span class="title">广告位招租</span><span style="color:#f5c518;font-size:0.8em;">联系：193-3466-7775</span></div>
+</div>
+
+<script>
+const SIZE = 4;
+let grid, score, best;
+
+const tileColors = {
+  2:'#eee4da',4:'#ede0c8',8:'#f2b179',16:'#f59563',
+  32:'#f67c5f',64:'#f65e3b',128:'#edcf72',256:'#edcc61',
+  512:'#edc850',1024:'#edc53f',2048:'#edc22e',4096:'#3c3a32',8192:'#3c3a32'
+};
+
+function init() {
+  grid = Array.from({length:SIZE}, () => Array(SIZE).fill(0));
+  score = 0;
+  best = parseInt(localStorage.getItem('best_2048') || '0');
+  document.getElementById('score').textContent = '0';
+  document.getElementById('best').textContent = best;
+  addRandom(); addRandom(); render();
+}
+
+function addRandom() {
+  const empty = [];
+  for (let r=0; r<SIZE; r++)
+    for (let c=0; c<SIZE; c++)
+      if (grid[r][c]===0) empty.push({r,c});
+  if (!empty.length) return;
+  const {r,c} = empty[Math.floor(Math.random()*empty.length)];
+  grid[r][c] = Math.random()<0.9 ? 2 : 4;
+}
+
+function render() {
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  for (let r=0; r<SIZE; r++)
+    for (let c=0; c<SIZE; c++) {
+      const tile = document.createElement('div');
+      tile.className = 'tile';
+      const v = grid[r][c];
+      tile.textContent = v || '';
+      tile.style.background = tileColors[v] || (v>2048?'#3c3a32':'#cdc1b4');
+      tile.style.color = v<=4?'#776e65':'#fff';
+      tile.style.fontSize = v>=1000?'1em':'1.5em';
+      board.appendChild(tile);
+    }
+}
+
+function slide(row) {
+  let arr = row.filter(v=>v);
+  for (let i=0; i<arr.length-1; i++)
+    if (arr[i]===arr[i+1]) { arr[i]*=2; score+=arr[i]; arr[i+1]=0; }
+  arr = arr.filter(v=>v);
+  while (arr.length<SIZE) arr.push(0);
+  return arr;
+}
+
+function move(dir) {
+  const old = grid.map(r=>[...r]);
+  if (dir==='left'||dir==='right') {
+    for (let r=0; r<SIZE; r++) {
+      let row = grid[r];
+      if (dir==='right') row = row.reverse();
+      row = slide(row);
+      if (dir==='right') row = row.reverse();
+      grid[r] = row;
+    }
+  } else {
+    for (let c=0; c<SIZE; c++) {
+      let col = [grid[0][c],grid[1][c],grid[2][c],grid[3][c]];
+      if (dir==='down') col = col.reverse();
+      col = slide(col);
+      if (dir==='down') col = col.reverse();
+      for (let r=0; r<SIZE; r++) grid[r][c] = col[r];
+    }
+  }
+  const changed = old.some((row,r)=>row.some((v,c)=>v!==grid[r][c]));
+  if (!changed) return;
+  addRandom();
+  document.getElementById('score').textContent = score;
+  if (score>best) { best=score; localStorage.setItem('best_2048',best); document.getElementById('best').textContent=best; }
+  render();
+  if (!canMove()) setTimeout(()=>{ alert('游戏结束！最终分数：'+score); }, 150);
+}
+
+function canMove() {
+  for (let r=0;r<SIZE;r++)
+    for (let c=0;c<SIZE;c++) {
+      if (grid[r][c]===0) return true;
+      if (c<SIZE-1&&grid[r][c]===grid[r][c+1]) return true;
+      if (r<SIZE-1&&grid[r][c]===grid[r+1][c]) return true;
+    }
+  return false;
+}
+
+document.addEventListener('keydown', e => {
+  const map = {ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',w:'up',W:'up',s:'down',S:'down',a:'left',A:'left',d:'right',D:'right'};
+  if (map[e.key]) { e.preventDefault(); move(map[e.key]); }
+});
+
+// 手机触摸滑动
+let touchStartX=0, touchStartY=0;
+document.addEventListener('touchstart', e => { touchStartX=e.touches[0].clientX; touchStartY=e.touches[0].clientY; });
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  if (Math.max(Math.abs(dx),Math.abs(dy))<30) return;
+  if (Math.abs(dx)>Math.abs(dy)) move(dx>0?'right':'left');
+  else move(dy>0?'down':'up');
+});
+
+function restart() { init(); }
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>小游戏合集</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    min-height: 100vh;
+    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+    color: #eee;
+  }
+  .wrapper { text-align: center; padding: 15px; max-width: 1000px; margin: 0 auto; }
+
+  /* 顶部广告 - 桌面 */
+  .ad-top {
+    height: 50px;
+    border: 2px dashed #4fc3f7;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #4fc3f7;
+    background: rgba(79,195,247,0.04);
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .ad-top .icon { font-size: 1.4em; }
+  .ad-top .title { font-size: 0.95em; font-weight: bold; }
+
+  h1 {
+    font-size: 2em;
+    margin-bottom: 5px;
+    background: linear-gradient(90deg, #e94560, #f5c518);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .subtitle { color: #888; margin-bottom: 30px; font-size: 0.9em; }
+
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 25px;
+  }
+  .game-card {
+    background: rgba(255,255,255,0.04);
+    border: 2px solid rgba(233,69,96,0.3);
+    border-radius: 14px;
+    padding: 25px 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    color: #eee;
+    display: block;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .game-card:hover, .game-card:active {
+    transform: translateY(-3px);
+    border-color: #f5c518;
+    background: rgba(245,197,24,0.06);
+  }
+  .game-card .icon { font-size: 2.8em; margin-bottom: 10px; display: block; }
+  .game-card .name { font-size: 1.2em; font-weight: bold; margin-bottom: 5px; }
+  .game-card .desc { font-size: 0.8em; color: #888; }
+
+  /* 底部广告 */
+  .ad-bottom {
+    height: 50px;
+    border: 2px dashed #f5c518;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #f5c518;
+    background: rgba(245,197,24,0.04);
+    flex-wrap: wrap;
+    padding: 0 10px;
+  }
+  .ad-bottom .icon { font-size: 1.3em; }
+  .ad-bottom .title { font-size: 0.85em; font-weight: bold; }
+
+  .footer { color: #555; font-size: 0.75em; margin-top: 15px; }
+
+  /* ===== 手机布局 ===== */
+  @media (max-width: 600px) {
+    .wrapper { padding: 10px; }
+    .ad-top { height: auto; min-height: 40px; padding: 8px 10px; font-size: 0.85em; gap: 6px; margin-bottom: 12px; }
+    .ad-top .icon { font-size: 1.1em; }
+    .ad-top .title { font-size: 0.8em; }
+    h1 { font-size: 1.6em; }
+    .subtitle { font-size: 0.78em; margin-bottom: 18px; }
+    .games-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .game-card { padding: 18px 12px; border-radius: 12px; }
+    .game-card .icon { font-size: 2.2em; margin-bottom: 6px; }
+    .game-card .name { font-size: 1em; }
+    .game-card .desc { font-size: 0.7em; }
+    .ad-bottom { height: auto; min-height: 40px; padding: 8px 10px; font-size: 0.8em; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="ad-top">
+    <span class="icon">📢</span>
+    <span class="title">广告位招租</span>
+    <span style="color:#4fc3f7;font-size:0.85em;">联系：193-3466-7775</span>
+  </div>
+
+  <h1>小游戏合集</h1>
+  <p class="subtitle">选择一个游戏开始玩吧</p>
+
+  <div class="games-grid">
+    <a href="snake-game.html" class="game-card">
+      <span class="icon">🐍</span>
+      <div class="name">贪吃蛇</div>
+      <div class="desc">经典吃豆长大</div>
+    </a>
+    <a href="breakout.html" class="game-card">
+      <span class="icon">🧱</span>
+      <div class="name">打砖块</div>
+      <div class="desc">弹球消砖块</div>
+    </a>
+    <a href="2048.html" class="game-card">
+      <span class="icon">🔢</span>
+      <div class="name">2048</div>
+      <div class="desc">滑动合并数字</div>
+    </a>
+    <a href="tetris.html" class="game-card">
+      <span class="icon">🧩</span>
+      <div class="name">俄罗斯方块</div>
+      <div class="desc">堆叠消行</div>
+    </a>
+    <a href="farm.html" class="game-card">
+      <span class="icon">🌱</span>
+      <div class="name">开心种菜</div>
+      <div class="desc">播种收获赚金币</div>
+    </a>
+  </div>
+
+  <div class="ad-bottom">
+    <span class="icon">📣</span>
+    <span class="title">广告位招租</span>
+    <span style="color:#f5c518;font-size:0.85em;">联系：193-3466-7775</span>
+  </div>
+
+  <p class="footer">更多游戏即将上线 · 广告合作：193-3466-7775</p>
+</div>
+</body>
+</html>

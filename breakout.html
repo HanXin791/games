@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>打砖块</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1a2e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .wrapper { text-align: center; padding: 10px; max-width: 100%; }
+  h1 { color: #e94560; font-size: 2em; margin-bottom: 6px; }
+  .info { display: flex; justify-content: center; gap: 30px; margin-bottom: 10px; }
+  .info-box { color: #eee; font-size: 1em; }
+  .info-box span { color: #f5c518; font-weight: bold; font-size: 1.2em; }
+  canvas {
+    border: 3px solid #e94560;
+    border-radius: 8px;
+    background: #16213e;
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    height: auto;
+  }
+  .tip { color: #888; margin-top: 10px; font-size: 0.85em; }
+  button {
+    margin: 8px 4px; padding: 10px 24px; font-size: 1em;
+    background: #e94560; color: #fff; border: none; border-radius: 6px; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:hover, button:active { background: #c73652; }
+  .back { background: transparent; border: 1px solid #888; color: #888; }
+  .back:hover, .back:active { border-color: #eee; color: #eee; background: transparent; }
+
+  .page { display: flex; align-items: flex-start; justify-content: center; gap: 15px; }
+  .ad-left, .ad-right { width: 140px; display: flex; flex-direction: column; gap: 12px; margin-top: 60px; }
+  .ad-side {
+    width: 140px; height: 160px;
+    border: 2px dashed #e94560; border-radius: 10px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: #e94560; background: rgba(233,69,96,0.05); text-align: center;
+  }
+  .ad-side .icon { font-size: 1.5em; margin-bottom: 4px; }
+  .ad-side .title { font-size: 0.8em; font-weight: bold; }
+  .ad-side .phone { font-size: 0.7em; color: #f5c518; margin-top: 2px; }
+
+  .ad-bottom {
+    max-width: 680px; margin: 10px auto 0; height: 45px;
+    border: 2px dashed #f5c518; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    color: #f5c518; background: rgba(245,197,24,0.04); padding: 0 10px;
+  }
+  .ad-bottom .icon { font-size: 1.2em; }
+  .ad-bottom .title { font-size: 0.85em; font-weight: bold; }
+
+  @media (max-width: 750px) {
+    body { align-items: flex-start; padding-top: 10px; }
+    .wrapper { padding: 8px; }
+    h1 { font-size: 1.5em; }
+    .info { gap: 20px; }
+    .info-box { font-size: 0.85em; }
+    .info-box span { font-size: 1em; }
+    .tip { font-size: 0.75em; margin-top: 6px; }
+    button { padding: 8px 20px; font-size: 0.9em; }
+
+    .page { flex-direction: column; align-items: center; gap: 8px; }
+    .ad-left, .ad-right { flex-direction: row; width: auto; margin-top: 0; gap: 8px; }
+    .ad-right { order: 3; }
+    .ad-side { width: 140px; height: 60px; flex-shrink: 0; }
+    .ad-side .icon { font-size: 1em; margin-bottom: 0; }
+    .ad-side .title { font-size: 0.7em; }
+    .ad-side .phone { font-size: 0.65em; }
+    .ad-bottom { max-width: 100%; height: auto; min-height: 38px; font-size: 0.78em; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="page">
+    <div class="ad-left">
+      <div class="ad-side"><span class="icon">💰</span><span class="title">广告位招租</span><span class="phone">193-3466-7775</span></div>
+      <div class="ad-side"><span class="icon">🎯</span><span class="title">广告位招租</span><span class="phone">193-3466-7775</span></div>
+    </div>
+
+    <div class="container">
+      <h1>打砖块</h1>
+      <div class="info">
+        <div class="info-box">分数 <span id="score">0</span></div>
+        <div class="info-box">生命 <span id="lives">3</span></div>
+      </div>
+      <canvas id="canvas" width="400" height="450"></canvas>
+      <p class="tip">手机触摸滑动控制挡板 | 点击画面发球</p>
+      <button onclick="restart()">重新开始</button>
+      <button class="back" onclick="location.href='games-home.html'">返回首页</button>
+    </div>
+
+    <div class="ad-right">
+      <div class="ad-side"><span class="icon">🎮</span><span class="title">广告位招租</span><span class="phone">193-3466-7775</span></div>
+      <div class="ad-side"><span class="icon">🔥</span><span class="title">广告位招租</span><span class="phone">193-3466-7775</span></div>
+    </div>
+  </div>
+
+  <div class="ad-bottom"><span class="icon">📣</span><span class="title">广告位招租</span><span style="color:#f5c518;font-size:0.8em;">联系：193-3466-7775</span></div>
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const CW = 400, CH = 450;
+const ROWS = 6, COLS = 10;
+const BRICK_W = CW/COLS, BRICK_H = 22;
+const PADDLE_W = 80, PADDLE_H = 10, BALL_R = 6;
+
+function resizeCanvas() {
+  if (window.innerWidth < 440) {
+    const s = (window.innerWidth - 20) / CW;
+    canvas.style.width = (CW * s) + 'px';
+    canvas.style.height = (CH * s) + 'px';
+  } else { canvas.style.width = ''; canvas.style.height = ''; }
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+let paddle, ball, bricks, score, lives, running, ballLaunched, leftHeld, rightHeld, timer;
+
+function getCanvasPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  return (e.clientX - rect.left) * (CW / rect.width);
+}
+
+function init() {
+  paddle = { x: CW/2-PADDLE_W/2, y: CH-30, w: PADDLE_W, h: PADDLE_H };
+  ball = { x: paddle.x+paddle.w/2, y: paddle.y-BALL_R, r: BALL_R, dx: 0, dy: 0 };
+  bricks = [];
+  const colors = ['#e94560','#f5c518','#4fc3f7','#00c853','#ff6d00','#aa00ff'];
+  for (let r = 0; r < ROWS; r++)
+    for (let c = 0; c < COLS; c++)
+      bricks.push({ x: c*BRICK_W, y: r*BRICK_H+40, w: BRICK_W-2, h: BRICK_H-2, color: colors[r], alive: true });
+  score = 0; lives = 3; running = true; ballLaunched = false; leftHeld = false; rightHeld = false;
+  document.getElementById('score').textContent = '0';
+  document.getElementById('lives').textContent = '3';
+  draw();
+}
+
+function launchBall() {
+  if (ballLaunched) return;
+  ballLaunched = true;
+  ball.dx = (Math.random() - 0.5) * 5;
+  ball.dy = -4;
+}
+
+function step() {
+  if (!running) return;
+  if (leftHeld) paddle.x = Math.max(0, paddle.x - 6);
+  if (rightHeld) paddle.x = Math.min(CW - paddle.w, paddle.x + 6);
+
+  if (!ballLaunched) { ball.x = paddle.x + paddle.w/2; ball.y = paddle.y - BALL_R; draw(); return; }
+
+  ball.x += ball.dx; ball.y += ball.dy;
+  if (ball.x - ball.r <= 0 || ball.x + ball.r >= CW) ball.dx *= -1;
+  if (ball.y - ball.r <= 0) ball.dy *= -1;
+  if (ball.y + ball.r >= CH) {
+    lives--;
+    document.getElementById('lives').textContent = lives;
+    if (lives <= 0) return gameOver();
+    ballLaunched = false; ball.x = paddle.x + paddle.w/2; ball.y = paddle.y - BALL_R; ball.dx = 0; ball.dy = 0;
+  }
+  if (ball.y + ball.r >= paddle.y && ball.y - ball.r <= paddle.y + paddle.h &&
+      ball.x >= paddle.x && ball.x <= paddle.x + paddle.w) {
+    ball.dy = -Math.abs(ball.dy);
+    ball.dx = ((ball.x - paddle.x) / paddle.w - 0.5) * 7;
+    ball.y = paddle.y - ball.r;
+  }
+  for (const b of bricks) {
+    if (!b.alive) continue;
+    if (ball.x+ball.r > b.x && ball.x-ball.r < b.x+b.w && ball.y+ball.r > b.y && ball.y-ball.r < b.y+b.h) {
+      b.alive = false; ball.dy *= -1;
+      score += 10; document.getElementById('score').textContent = score;
+      if (!bricks.some(bk => bk.alive)) return gameWin();
+      break;
+    }
+  }
+  draw();
+}
+
+function gameOver() {
+  running = false; draw();
+  ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0, 0, CW, CH);
+  ctx.fillStyle = '#e94560'; ctx.font = 'bold 28px "Microsoft YaHei"'; ctx.textAlign = 'center';
+  ctx.fillText('游戏结束', CW/2, CH/2);
+}
+
+function gameWin() {
+  running = false; draw();
+  ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0, 0, CW, CH);
+  ctx.fillStyle = '#f5c518'; ctx.font = 'bold 28px "Microsoft YaHei"'; ctx.textAlign = 'center';
+  ctx.fillText('恭喜通关！', CW/2, CH/2);
+}
+
+function draw() {
+  ctx.clearRect(0, 0, CW, CH);
+  bricks.forEach(b => { if (b.alive) { ctx.fillStyle = b.color; ctx.fillRect(b.x, b.y, b.w, b.h); } });
+  ctx.fillStyle = '#4fc3f7'; ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
+  ctx.fillStyle = '#f5c518'; ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI*2); ctx.fill();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft') { e.preventDefault(); leftHeld = true; }
+  if (e.key === 'ArrowRight') { e.preventDefault(); rightHeld = true; }
+  if (e.key === ' ') { e.preventDefault(); if (running && !ballLaunched) launchBall(); else if (running) running = !running; else restart(); }
+});
+document.addEventListener('keyup', e => {
+  if (e.key === 'ArrowLeft') leftHeld = false;
+  if (e.key === 'ArrowRight') rightHeld = false;
+});
+
+canvas.addEventListener('mousemove', e => { paddle.x = Math.max(0, Math.min(CW - paddle.w, getCanvasPos(e) - paddle.w/2)); });
+canvas.addEventListener('click', () => { if (running && !ballLaunched) launchBall(); });
+
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  paddle.x = Math.max(0, Math.min(CW - paddle.w, getCanvasPos(e.touches[0]) - paddle.w/2));
+}, {passive: false});
+canvas.addEventListener('touchend', () => { if (running && !ballLaunched) launchBall(); });
+
+function restart() { clearInterval(timer); timer = setInterval(step, 16); init(); }
+timer = setInterval(step, 16);
+init();
+</script>
+</body>
+</html>
