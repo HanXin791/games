@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>连连看</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1a2e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .container { text-align: center; padding: 10px; }
+  h1 { color: #e94560; font-size: 2em; margin-bottom: 4px; }
+  .info { display: flex; justify-content: center; gap: 24px; margin-bottom: 8px; flex-wrap: wrap; }
+  .info-box { color: #eee; font-size: 0.95em; }
+  .info-box span { color: #f5c518; font-weight: bold; font-size: 1.2em; }
+  .game-area {
+    position: relative; display: inline-block;
+    background: rgba(255,255,255,0.02);
+    border: 2px solid rgba(233,69,96,0.3);
+    border-radius: 10px; padding: 6px;
+  }
+  .grid { display: grid; gap: 3px; }
+  .cell {
+    width: 44px; height: 44px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4em;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: rgba(255,255,255,0.06);
+    border: 2px solid transparent;
+  }
+  .cell.empty { background: transparent; cursor: default; }
+  .cell.selected { border-color: #f5c518; background: rgba(245,197,24,0.2); transform: scale(1.05); }
+  .cell.matched { animation: pop 0.3s ease-out; }
+  .cell.hint { animation: hintPulse 0.5s ease-in-out 3; }
+  @keyframes pop {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.5; }
+    100% { transform: scale(0); opacity: 0; }
+  }
+  @keyframes hintPulse {
+    0%,100% { border-color: transparent; }
+    50% { border-color: #4fc3f7; background: rgba(79,195,247,0.2); }
+  }
+  .tip { color: #888; margin-top: 10px; font-size: 0.85em; }
+  button {
+    margin: 8px 4px; padding: 10px 22px; font-size: 1em;
+    background: #e94560; color: #fff; border: none; border-radius: 6px; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:hover, button:active { background: #c73652; }
+  button.hint-btn { background: #f5c518; color: #1a1a2e; }
+  button.hint-btn:hover { background: #e0b800; }
+  .link { background: transparent; border: 1px solid #888; color: #888; }
+  .link:hover, .link:active { border-color: #eee; color: #eee; background: transparent; }
+
+  /* 连线 canvas */
+  #lineCanvas { position: absolute; top: 0; left: 0; pointer-events: none; }
+
+  @media (max-width: 500px) {
+    h1 { font-size: 1.5em; }
+    .cell { width: 36px; height: 36px; font-size: 1.2em; }
+    .info-box { font-size: 0.8em; }
+    button { padding: 8px 16px; font-size: 0.9em; }
+  }
+  @media (max-width: 380px) {
+    .cell { width: 30px; height: 30px; font-size: 1em; }
+    .grid { gap: 2px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>连连看</h1>
+  <div class="info">
+    <div class="info-box">关卡 <span id="level">1</span></div>
+    <div class="info-box">剩余 <span id="remain">0</span> 对</div>
+    <div class="info-box">最高关卡 <span id="best">1</span></div>
+  </div>
+  <div class="game-area" id="gameArea">
+    <div class="grid" id="grid"></div>
+    <canvas id="lineCanvas"></canvas>
+  </div>
+  <p class="tip">点击两个相同的图标，连接路径最多拐2个弯即可消除</p>
+  <button class="hint-btn" onclick="showHint()">提示</button>
+  <button onclick="restart()">重新开始</button>
+  <button class="link" onclick="location.href='leaderboard.html'">排行榜</button>
+  <button class="link" onclick="location.href='feedback.html'">留言板</button>
+  <button class="link" onclick="location.href='index.html'">返回首页</button>
+</div>
+
+<script>
+const ICONS = ['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','',''];
+
+let board = []; // board[r][c] = iconIndex (0=empty)
+let ROWS, COLS; // visible grid
+let selected = null; // {r,c}
+let currentLevel = 1;
+let bestLevel = 1;
+let pairsLeft = 0;
+let hintsLeft = 3;
+
+// Level config: more tiles and more types as level increases
+function getLevelConfig(lv) {
+  const configs = [
+    { rows: 4, cols: 6, types: 6 },   // L1: 24 tiles, 12 pairs
+    { rows: 4, cols: 6, types: 8 },   // L2: 24 tiles, 12 pairs, more types
+    { rows: 5, cols: 6, types: 9 },   // L3: 30 tiles
+    { rows: 5, cols: 6, types: 10 },  // L4
+    { rows: 6, cols: 6, types: 10 },  // L5: 36 tiles
+    { rows: 6, cols: 6, types: 12 },  // L6
+    { rows: 6, cols: 7, types: 12 },  // L7: 42 tiles
+    { rows: 6, cols: 7, types: 14 },  // L8
+    { rows: 6, cols: 8, types: 14 },  // L9: 48 tiles
+    { rows: 6, cols: 8, types: 16 },  // L10
+    { rows: 7, cols: 8, types: 16 },  // L11
+    { rows: 7, cols: 8, types: 18 },  // L12
+    { rows: 8, cols: 8, types: 18 },  // L13
+    { rows: 8, cols: 8, types: 20 },  // L14
+    { rows: 8, cols: 9, types: 20 },  // L15
+  ];
+  if (lv <= configs.length) return configs[lv - 1];
+  // Beyond level 15: formula-based
+  const rows = Math.min(10, 8 + Math.floor((lv - 15) / 5));
+  const cols = Math.min(12, 9 + Math.floor((lv - 15) / 3));
+  const types = Math.min(30, 20 + (lv - 15));
+  return { rows, cols, types };
+}
+
+function init() {
+  const cfg = getLevelConfig(currentLevel);
+  ROWS = cfg.rows;
+  COLS = cfg.cols;
+  const total = ROWS * COLS;
+  const pairs = total / 2;
+  pairsLeft = pairs;
+  hintsLeft = 3;
+
+  // Generate pairs
+  const tiles = [];
+  for (let i = 0; i < pairs; i++) {
+    const iconIdx = i % Math.min(cfg.types, ICONS.length);
+    tiles.push(iconIdx, iconIdx);
+  }
+  // Shuffle
+  for (let i = tiles.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+  }
+
+  // Fill board
+  board = [];
+  let idx = 0;
+  for (let r = 0; r < ROWS; r++) {
+    board[r] = [];
+    for (let c = 0; c < COLS; c++) {
+      board[r][c] = tiles[idx++] + 1; // +1 so 0=empty
+    }
+  }
+
+  selected = null;
+  document.getElementById('level').textContent = currentLevel;
+  document.getElementById('remain').textContent = pairsLeft;
+  bestLevel = parseInt(localStorage.getItem('link_best') || '1');
+  document.getElementById('best').textContent = bestLevel;
+  render();
+}
+
+// Path finding: check if (r1,c1) can connect to (r2,c2) with ≤2 turns
+// board rows 0..ROWS-1, cols 0..COLS-1
+// Can also go outside the board (border path)
+
+function isEmpty(r, c) {
+  if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return true; // outside is free
+  return board[r][c] === 0;
+}
+
+function canConnect(r1, c1, r2, c2) {
+  if (r1 === r2 && c1 === c2) return null;
+  if (board[r1][c1] !== board[r2][c2]) return null;
+
+  // 0 turns: same row or same column, path clear
+  if (r1 === r2) {
+    const minC = Math.min(c1, c2), maxC = Math.max(c1, c2);
+    let clear = true;
+    for (let c = minC + 1; c < maxC; c++) {
+      if (!isEmpty(r1, c)) { clear = false; break; }
+    }
+    if (clear) return [{r: r1, c: c1}, {r: r2, c: c2}];
+  }
+  if (c1 === c2) {
+    const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
+    let clear = true;
+    for (let r = minR + 1; r < maxR; r++) {
+      if (!isEmpty(r, c1)) { clear = false; break; }
+    }
+    if (clear) return [{r: r1, c: c1}, {r: r2, c: c2}];
+  }
+
+  // 1 turn: L-shaped
+  // Corner at (r1, c2)
+  if (isEmpty(r1, c2)) {
+    let clear1 = true, clear2 = true;
+    const minC = Math.min(c1, c2), maxC = Math.max(c1, c2);
+    for (let c = minC + 1; c < maxC; c++) {
+      if (!isEmpty(r1, c)) { clear1 = false; break; }
+    }
+    const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
+    for (let r = minR + 1; r < maxR; r++) {
+      if (!isEmpty(r, c2)) { clear2 = false; break; }
+    }
+    if (clear1 && clear2) return [{r: r1, c: c1}, {r: r1, c: c2}, {r: r2, c: c2}];
+  }
+  // Corner at (r2, c1)
+  if (isEmpty(r2, c1)) {
+    let clear1 = true, clear2 = true;
+    const minC = Math.min(c1, c2), maxC = Math.max(c1, c2);
+    for (let c = minC + 1; c < maxC; c++) {
+      if (!isEmpty(r2, c)) { clear1 = false; break; }
+    }
+    const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
+    for (let r = minR + 1; r < maxR; r++) {
+      if (!isEmpty(r, c1)) { clear2 = false; break; }
+    }
+    if (clear1 && clear2) return [{r: r1, c: c1}, {r: r2, c: c1}, {r: r2, c: c2}];
+  }
+
+  // 2 turns: horizontal then vertical line
+  // Scan columns between c1 and c2
+  for (let c = 0; c < COLS; c++) {
+    if (!isEmpty(r1, c)) continue;
+    if (!isEmpty(r2, c)) continue;
+    // Check horizontal paths to column c
+    const minC = Math.min(c1, c), maxC = Math.max(c1, c);
+    let h1 = true;
+    for (let cc = minC + 1; cc < maxC; cc++) { if (!isEmpty(r1, cc)) { h1 = false; break; } }
+    if (!h1) continue;
+    const minC2 = Math.min(c2, c), maxC2 = Math.max(c2, c);
+    let h2 = true;
+    for (let cc = minC2 + 1; cc < maxC2; cc++) { if (!isEmpty(r2, cc)) { h2 = false; break; } }
+    if (!h2) continue;
+    // Check vertical path from r1 to r2 at column c
+    const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
+    let v = true;
+    for (let rr = minR + 1; rr < maxR; rr++) { if (!isEmpty(rr, c)) { v = false; break; } }
+    if (v) return [{r: r1, c: c1}, {r: r1, c: c}, {r: r2, c: c}, {r: r2, c: c2}];
+  }
+  // Scan rows between r1 and r2
+  for (let r = 0; r < ROWS; r++) {
+    if (!isEmpty(r, c1)) continue;
+    if (!isEmpty(r, c2)) continue;
+    const minR = Math.min(r1, r), maxR = Math.max(r1, r);
+    let v1 = true;
+    for (let rr = minR + 1; rr < maxR; rr++) { if (!isEmpty(rr, c1)) { v1 = false; break; } }
+    if (!v1) continue;
+    const minR2 = Math.min(r2, r), maxR2 = Math.max(r2, r);
+    let v2 = true;
+    for (let rr = minR2 + 1; rr < maxR2; rr++) { if (!isEmpty(rr, c2)) { v2 = false; break; } }
+    if (!v2) continue;
+    const minC = Math.min(c1, c2), maxC = Math.max(c1, c2);
+    let h = true;
+    for (let cc = minC + 1; cc < maxC; cc++) { if (!isEmpty(r, cc)) { h = false; break; } }
+    if (h) return [{r: r1, c: c1}, {r: r, c: c1}, {r: r, c: c2}, {r: r2, c: c2}];
+  }
+
+  // Also check paths going outside the board (using rows -1 and ROWS)
+  for (let r = -1; r <= ROWS; r++) {
+    if (r >= 0 && r < ROWS) continue; // skip inside rows, already checked
+    // At row r (outside), the horizontal line is always clear
+    // Check vertical from r1 to r at column c1
+    let v1_clear = true;
+    if (r < 0) { for (let rr = 0; rr < r1; rr++) { if (!isEmpty(rr, c1)) { v1_clear = false; break; } } }
+    else { for (let rr = r1 + 1; rr < ROWS; rr++) { if (!isEmpty(rr, c1)) { v1_clear = false; break; } } }
+    if (!v1_clear) continue;
+    let v2_clear = true;
+    if (r < 0) { for (let rr = 0; rr < r2; rr++) { if (!isEmpty(rr, c2)) { v2_clear = false; break; } } }
+    else { for (let rr = r2 + 1; rr < ROWS; rr++) { if (!isEmpty(rr, c2)) { v2_clear = false; break; } } }
+    if (!v2_clear) continue;
+    return [{r: r1, c: c1}, {r: r, c: c1}, {r: r, c: c2}, {r: r2, c: c2}];
+  }
+
+  // Check paths going outside columns
+  for (let c = -1; c <= COLS; c++) {
+    if (c >= 0 && c < COLS) continue;
+    let h1_clear = true;
+    if (c < 0) { for (let cc = 0; cc < c1; cc++) { if (!isEmpty(r1, cc)) { h1_clear = false; break; } } }
+    else { for (let cc = c1 + 1; cc < COLS; cc++) { if (!isEmpty(r1, cc)) { h1_clear = false; break; } } }
+    if (!h1_clear) continue;
+    let h2_clear = true;
+    if (c < 0) { for (let cc = 0; cc < c2; cc++) { if (!isEmpty(r2, cc)) { h2_clear = false; break; } } }
+    else { for (let cc = c2 + 1; cc < COLS; cc++) { if (!isEmpty(r2, cc)) { h2_clear = false; break; } } }
+    if (!h2_clear) continue;
+    return [{r: r1, c: c1}, {r: r1, c: c}, {r: r2, c: c}, {r: r2, c: c2}];
+  }
+
+  return null;
+}
+
+function findAnyMatch() {
+  const cells = [];
+  for (let r = 0; r < ROWS; r++)
+    for (let c = 0; c < COLS; c++)
+      if (board[r][c] !== 0) cells.push({r, c});
+
+  for (let i = 0; i < cells.length; i++) {
+    for (let j = i + 1; j < cells.length; j++) {
+      if (board[cells[i].r][cells[i].c] !== board[cells[j].r][cells[j].c]) continue;
+      if (canConnect(cells[i].r, cells[i].c, cells[j].r, cells[j].c)) {
+        return [cells[i], cells[j]];
+      }
+    }
+  }
+  return null;
+}
+
+function cellClicked(r, c) {
+  if (board[r][c] === 0) return;
+
+  if (selected) {
+    if (selected.r === r && selected.c === c) {
+      selected = null;
+      render();
+      return;
+    }
+    if (board[selected.r][selected.c] === board[r][c]) {
+      const path = canConnect(selected.r, selected.c, r, c);
+      if (path) {
+        drawLine(path);
+        setTimeout(() => {
+          board[selected.r][selected.c] = 0;
+          board[r][c] = 0;
+          pairsLeft--;
+          document.getElementById('remain').textContent = pairsLeft;
+          clearLine();
+          selected = null;
+          render();
+
+          if (pairsLeft === 0) {
+            setTimeout(() => {
+              currentLevel++;
+              saveBest();
+              init();
+            }, 500);
+            return;
+          }
+          // Check if stuck
+          if (!findAnyMatch()) {
+            setTimeout(() => {
+              alert('没有可消除的对了，重新洗牌！');
+              reshuffle();
+            }, 300);
+          }
+        }, 200);
+        return;
+      }
+    }
+    selected = {r, c};
+    render();
+  } else {
+    selected = {r, c};
+    render();
+  }
+}
+
+function reshuffle() {
+  const tiles = [];
+  for (let r = 0; r < ROWS; r++)
+    for (let c = 0; c < COLS; c++)
+      if (board[r][c] !== 0) tiles.push(board[r][c]);
+  for (let i = tiles.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+  }
+  let idx = 0;
+  for (let r = 0; r < ROWS; r++)
+    for (let c = 0; c < COLS; c++)
+      if (board[r][c] !== 0) board[r][c] = tiles[idx++];
+  selected = null;
+  render();
+}
+
+function showHint() {
+  if (hintsLeft <= 0) return;
+  const match = findAnyMatch();
+  if (!match) { reshuffle(); return; }
+  hintsLeft--;
+  render();
+  // Flash the hint cells
+  const grid = document.getElementById('grid');
+  const children = grid.children;
+  children[match[0].r * COLS + match[0].c].classList.add('hint');
+  children[match[1].r * COLS + match[1].c].classList.add('hint');
+  setTimeout(() => {
+    children[match[0].r * COLS + match[0].c]?.classList.remove('hint');
+    children[match[1].r * COLS + match[1].c]?.classList.remove('hint');
+  }, 1500);
+}
+
+function drawLine(path) {
+  const canvas = document.getElementById('lineCanvas');
+  const gameArea = document.getElementById('gameArea');
+  const gridEl = document.getElementById('grid');
+  const rect = gridEl.getBoundingClientRect();
+  const areaRect = gameArea.getBoundingClientRect();
+
+  canvas.width = gameArea.offsetWidth;
+  canvas.height = gameArea.offsetHeight;
+  canvas.style.width = gameArea.offsetWidth + 'px';
+  canvas.style.height = gameArea.offsetHeight + 'px';
+
+  const ctx = canvas.getContext('2d');
+  const cellW = gridEl.children[0]?.offsetWidth || 44;
+  const cellH = gridEl.children[0]?.offsetHeight || 44;
+  const gap = 3;
+  const padLeft = (canvas.width - (cellW + gap) * COLS + gap) / 2;
+  const padTop = (canvas.height - (cellH + gap) * ROWS + gap) / 2;
+
+  function cellCenter(rc) {
+    let r = rc.r, c = rc.c;
+    let x = padLeft + c * (cellW + gap) + cellW / 2;
+    let y = padTop + r * (cellH + gap) + cellH / 2;
+    // Clamp outside-board points
+    if (r < 0) y = padTop - 10;
+    if (r >= ROWS) y = padTop + ROWS * (cellH + gap) + 10;
+    if (c < 0) x = padLeft - 10;
+    if (c >= COLS) x = padLeft + COLS * (cellW + gap) + 10;
+    return {x, y};
+  }
+
+  ctx.strokeStyle = '#f5c518';
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  const start = cellCenter(path[0]);
+  ctx.moveTo(start.x, start.y);
+  for (let i = 1; i < path.length; i++) {
+    const pt = cellCenter(path[i]);
+    ctx.lineTo(pt.x, pt.y);
+  }
+  ctx.stroke();
+}
+
+function clearLine() {
+  const canvas = document.getElementById('lineCanvas');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function render() {
+  const grid = document.getElementById('grid');
+  grid.style.gridTemplateColumns = `repeat(${COLS}, 1fr)`;
+  grid.innerHTML = '';
+
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const div = document.createElement('div');
+      div.className = 'cell';
+      if (board[r][c] === 0) {
+        div.classList.add('empty');
+      } else {
+        div.textContent = ICONS[board[r][c] - 1] || '?';
+      }
+      if (selected && selected.r === r && selected.c === c) {
+        div.classList.add('selected');
+      }
+      div.addEventListener('click', () => cellClicked(r, c));
+      grid.appendChild(div);
+    }
+  }
+}
+
+function saveBest() {
+  if (currentLevel > bestLevel) {
+    bestLevel = currentLevel;
+    localStorage.setItem('link_best', bestLevel);
+    document.getElementById('best').textContent = bestLevel;
+
+    // Save to leaderboard
+    const name = localStorage.getItem('player_name') || '匿名玩家';
+    const list = JSON.parse(localStorage.getItem('lb_link') || '[]');
+    const exist = list.find(e => e.name === name);
+    if (exist) exist.score = Math.max(exist.score, bestLevel);
+    else list.push({ name, score: bestLevel, date: Date.now() });
+    list.sort((a, b) => b.score - a.score);
+    localStorage.setItem('lb_link', JSON.stringify(list.slice(0, 30)));
+  }
+}
+
+function restart() {
+  currentLevel = 1;
+  init();
+}
+
+init();
+</script>
+</body>
+</html>

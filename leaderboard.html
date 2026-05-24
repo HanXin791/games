@@ -93,6 +93,7 @@
     <button class="tab" onclick="switchTab('2048')">2048</button>
     <button class="tab" onclick="switchTab('tetris')">俄罗斯方块</button>
     <button class="tab" onclick="switchTab('farm')">开心种菜</button>
+    <button class="tab" onclick="switchTab('link')">连连看</button>
   </div>
 
   <div class="rank-list" id="rankList">
@@ -113,6 +114,7 @@ const GAMES = {
   '2048': { name: '2048', icon: '' },
   tetris: { name: '俄罗斯方块', icon: '' },
   farm: { name: '开心种菜', icon: '' },
+  link: { name: '连连看', icon: '' },
 };
 let currentTab = 'all';
 
@@ -134,7 +136,7 @@ function getAllScores() {
 function switchTab(tab) {
   currentTab = tab;
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  const tabs = ['all','snake','breakout','2048','tetris','farm'];
+  const tabs = ['all','snake','breakout','2048','tetris','farm','link'];
   const idx = tabs.indexOf(tab);
   if (idx >= 0) document.querySelectorAll('.tab')[idx].classList.add('active');
   render();
