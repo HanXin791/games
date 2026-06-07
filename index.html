@@ -182,7 +182,6 @@
   const BASE_MIN = 12000;
   const BASE_MAX = 18000;
   const storageKey = 'site_visitor_count';
-  const sessionFlag = 'visited';
 
   let count = parseInt(localStorage.getItem(storageKey));
   if (!count) {
@@ -190,7 +189,6 @@
   }
   count++;
   localStorage.setItem(storageKey, count);
-  const count = parseInt(localStorage.getItem(storageKey)) || BASE_MIN;
   document.getElementById('visitorCount').textContent = count.toLocaleString();
 })();
 </script>
