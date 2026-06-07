@@ -90,6 +90,12 @@
   }
   .nav-link:hover { border-color: #eee; color: #eee; }
 
+  .visitor-counter {
+    text-align: center; margin-top: 10px;
+    font-size: 0.8em; color: #666;
+  }
+  .visitor-counter span { color: #f5c518; font-weight: bold; }
+
   .service-banner {
     margin: 30px auto 0;
     max-width: 500px;
@@ -151,6 +157,8 @@
     </a>
   </div>
 
+  <div class="visitor-counter">👁️ 累计访问：<span id="visitorCount">--</span> 人次</div>
+
   <div class="suggest-bar">
     💡 想要更多内容？<a href="feedback.html">留言板</a>提建议 · 想赚钱？加微信 <span class="wx">NovemberH_14</span>
   </div>
@@ -168,5 +176,28 @@
     <a href="feedback.html" class="nav-link">留言板</a>
   </div>
 </div>
+<script>
+// 访问计数器
+(function() {
+  const BASE_MIN = 12000;
+  const BASE_MAX = 18000;
+  const storageKey = 'site_visitor_count';
+  const sessionFlag = 'visited';
+
+  // 是否新会话
+  if (!sessionStorage.getItem(sessionFlag)) {
+    sessionStorage.setItem(sessionFlag, '1');
+    let count = parseInt(localStorage.getItem(storageKey));
+    if (!count) {
+      // 首次初始化：随机 12000-18000
+      count = Math.floor(Math.random() * (BASE_MAX - BASE_MIN + 1)) + BASE_MIN;
+    }
+    count++;
+    localStorage.setItem(storageKey, count);
+  }
+  const count = parseInt(localStorage.getItem(storageKey)) || BASE_MIN;
+  document.getElementById('visitorCount').textContent = count.toLocaleString();
+})();
+</script>
 </body>
 </html>
