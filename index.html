@@ -177,19 +177,27 @@
   </div>
 </div>
 <script>
-// 访问计数器
+// 全局访问计数器（微信+浏览器共享）
 (function() {
-  const BASE_MIN = 12000;
-  const BASE_MAX = 18000;
-  const storageKey = 'site_visitor_count';
+  const API = 'https://api.countapi.xyz';
+  const ns = 'hanxin791-games';
+  const key = 'visits';
+  const BASE = 12345;
 
-  let count = parseInt(localStorage.getItem(storageKey));
-  if (!count) {
-    count = Math.floor(Math.random() * (BASE_MAX - BASE_MIN + 1)) + BASE_MIN;
-  }
-  count++;
-  localStorage.setItem(storageKey, count);
-  document.getElementById('visitorCount').textContent = count.toLocaleString();
+  fetch(`${API}/get/${ns}/${key}`)
+    .then(r => r.json())
+    .then(d => fetch(`${API}/hit/${ns}/${key}`).then(r => r.json()))
+    .then(d => {
+      document.getElementById('visitorCount').textContent = (d.value + BASE).toLocaleString();
+    })
+    .catch(() => {
+      const k = 'site_visitor_count';
+      let c = parseInt(localStorage.getItem(k));
+      if (!c) c = Math.floor(Math.random() * 6001) + BASE;
+      c++;
+      localStorage.setItem(k, c);
+      document.getElementById('visitorCount').textContent = c.toLocaleString();
+    });
 })();
 </script>
 </body>
