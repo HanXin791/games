@@ -73,6 +73,24 @@
   .game-card .name { font-size: 1.2em; font-weight: bold; margin-bottom: 5px; }
   .game-card .desc { font-size: 0.8em; color: #888; }
 
+  .service-banner {
+    margin: 20px auto 0;
+    background: linear-gradient(135deg, rgba(79,195,247,0.08), rgba(233,69,96,0.06));
+    border: 1px solid rgba(79,195,247,0.25);
+    border-radius: 16px;
+    padding: 16px 20px;
+    text-align: center;
+    max-width: 500px;
+  }
+  .service-banner .svc-title { font-size: 0.9em; font-weight: bold; color: #4fc3f7; }
+  .service-banner .svc-desc { font-size: 0.75em; color: #888; margin: 2px 0; }
+  .service-banner .svc-wx {
+    display: inline-block; margin-top: 6px;
+    padding: 5px 16px; background: rgba(79,195,247,0.12);
+    border: 1px solid rgba(79,195,247,0.35); border-radius: 20px;
+    color: #4fc3f7; font-size: 0.82em; letter-spacing: 1px;
+  }
+
   .footer { color: #555; font-size: 0.75em; margin-top: 10px; }
 
   @media (max-width: 500px) {
@@ -128,6 +146,12 @@
       <div class="name">连连看</div>
       <div class="desc">消除闯关无限关</div>
     </a>
+  </div>
+
+  <div class="service-banner">
+    <div class="svc-title">帮做小程序 · 帮做网站</div>
+    <div class="svc-desc">扫码点单 · 工具箱 · 小游戏 · 个人/企业官网</div>
+    <span class="svc-wx">微信：NovemberH_14</span>
   </div>
 
   <p class="footer">更多游戏即将上线</p>
