@@ -184,17 +184,12 @@
   const storageKey = 'site_visitor_count';
   const sessionFlag = 'visited';
 
-  // 是否新会话
-  if (!sessionStorage.getItem(sessionFlag)) {
-    sessionStorage.setItem(sessionFlag, '1');
-    let count = parseInt(localStorage.getItem(storageKey));
-    if (!count) {
-      // 首次初始化：随机 12000-18000
-      count = Math.floor(Math.random() * (BASE_MAX - BASE_MIN + 1)) + BASE_MIN;
-    }
-    count++;
-    localStorage.setItem(storageKey, count);
+  let count = parseInt(localStorage.getItem(storageKey));
+  if (!count) {
+    count = Math.floor(Math.random() * (BASE_MAX - BASE_MIN + 1)) + BASE_MIN;
   }
+  count++;
+  localStorage.setItem(storageKey, count);
   const count = parseInt(localStorage.getItem(storageKey)) || BASE_MIN;
   document.getElementById('visitorCount').textContent = count.toLocaleString();
 })();
