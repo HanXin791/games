@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>星座运势</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: linear-gradient(135deg, #0f0c29 0%, #1a1a3e 50%, #24243e 100%);
+    min-height: 100vh;
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    color: #eee;
+    padding: 15px;
+  }
+  .wrapper { max-width: 500px; margin: 0 auto; }
+  .back-link {
+    display: inline-block; margin-bottom: 12px;
+    padding: 6px 16px; border: 1px solid #888; color: #888;
+    border-radius: 20px; text-decoration: none; font-size: 0.8em;
+  }
+  h1 { text-align: center; font-size: 1.8em; margin-bottom: 5px; color: #bb86fc; }
+  .subtitle { text-align: center; color: #888; font-size: 0.9em; margin-bottom: 20px; }
+
+  .signs-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;
+  }
+  .sign-item {
+    text-align: center; padding: 14px 8px; border-radius: 14px;
+    background: rgba(255,255,255,0.04); cursor: pointer; transition: all 0.2s;
+    border: 2px solid transparent;
+  }
+  .sign-item:active { transform: scale(0.95); }
+  .sign-item.active { border-color: #bb86fc; background: rgba(187,134,252,0.15); }
+  .sign-icon { font-size: 2em; display: block; margin-bottom: 4px; }
+  .sign-name { font-size: 0.75em; color: #aaa; }
+  .sign-date { font-size: 0.6em; color: #666; display: block; }
+
+  .result-card {
+    background: rgba(255,255,255,0.04); border-radius: 20px; padding: 24px;
+    border: 1px solid rgba(255,255,255,0.08); margin-bottom: 16px;
+    animation: fadeIn 0.5s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .result-header { text-align: center; margin-bottom: 16px; }
+  .result-icon { font-size: 4em; display: block; }
+  .result-sign { font-size: 1.3em; font-weight: bold; color: #bb86fc; }
+
+  .fortune-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+  .fortune-item {
+    text-align: center; background: rgba(255,255,255,0.04); border-radius: 12px; padding: 14px 10px;
+  }
+  .fortune-label { font-size: 0.75em; color: #888; display: block; }
+  .fortune-value { font-size: 1.8em; display: block; margin: 4px 0; }
+  .fortune-text { font-size: 0.8em; color: #ccc; }
+
+  .lucky-section { margin-bottom: 14px; }
+  .lucky-label { font-size: 0.85em; color: #bb86fc; font-weight: bold; }
+  .lucky-text { font-size: 0.9em; color: #ccc; margin-top: 4px; }
+
+  .desc-text { line-height: 1.7; color: #aaa; font-size: 0.9em; background: rgba(255,255,255,0.02); padding: 16px; border-radius: 12px; }
+
+  .share-row { display: flex; gap: 10px; margin-top: 16px; }
+  .share-btn {
+    flex: 1; padding: 12px; border-radius: 10px; border: none;
+    font-size: 0.9em; cursor: pointer; transition: all 0.2s;
+  }
+  .share-btn.copy { background: rgba(79,195,247,0.15); color: #4fc3f7; border: 1px solid rgba(79,195,247,0.3); }
+  .share-btn.wx { background: rgba(76,175,80,0.15); color: #4caf50; border: 1px solid rgba(76,175,80,0.3); }
+
+  .wx-invite {
+    text-align: center; margin-top: 16px; padding: 18px;
+    background: linear-gradient(135deg, rgba(76,175,80,0.1), rgba(79,195,247,0.08));
+    border-radius: 14px; border: 1px solid rgba(76,175,80,0.2);
+  }
+  .wx-invite .title { font-size: 0.95em; font-weight: bold; color: #4caf50; }
+  .wx-invite .wxid {
+    display: inline-block; margin-top: 8px; padding: 8px 20px;
+    background: rgba(76,175,80,0.2); border-radius: 20px;
+    font-size: 0.9em; color: #4fc3f7; letter-spacing: 1px;
+  }
+
+  .nav-links { text-align: center; margin-top: 20px; }
+  .nav-links a {
+    padding: 8px 16px; border: 1px solid #555; color: #888;
+    border-radius: 20px; text-decoration: none; font-size: 0.8em; margin: 3px;
+    display: inline-block;
+  }
+
+  @media (max-width: 400px) {
+    .signs-grid { grid-template-columns: repeat(3, 1fr); }
+    .sign-icon { font-size: 1.6em; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <a href="index.html" class="back-link">← 返回首页</a>
+  <h1>✨ 星座运势</h1>
+  <p class="subtitle">选择你的星座，查看今日运势</p>
+
+  <div class="signs-grid" id="signsGrid"></div>
+  <div id="resultArea"></div>
+
+  <div class="nav-links">
+    <a href="games.html">小游戏</a>
+    <a href="love-test.html">恋爱测评</a>
+    <a href="mbti.html">MBTI测试</a>
+    <a href="feedback.html">留言板</a>
+  </div>
+</div>
+
+<script>
+const SIGNS = [
+  { name: '白羊座', emoji: '♈', date: '3.21-4.19' },
+  { name: '金牛座', emoji: '♉', date: '4.20-5.20' },
+  { name: '双子座', emoji: '♊', date: '5.21-6.21' },
+  { name: '巨蟹座', emoji: '♋', date: '6.22-7.22' },
+  { name: '狮子座', emoji: '♌', date: '7.23-8.22' },
+  { name: '处女座', emoji: '♍', date: '8.23-9.22' },
+  { name: '天秤座', emoji: '♎', date: '9.23-10.23' },
+  { name: '天蝎座', emoji: '♏', date: '10.24-11.22' },
+  { name: '射手座', emoji: '♐', date: '11.23-12.21' },
+  { name: '摩羯座', emoji: '♑', date: '12.22-1.19' },
+  { name: '水瓶座', emoji: '♒', date: '1.20-2.18' },
+  { name: '双鱼座', emoji: '♓', date: '2.19-3.20' },
+];
+
+const COLORS = ['#e94560','#4fc3f7','#4caf50','#f5c518','#ff9800','#9c27b0','#e91e63','#00bcd4','#ff5722','#3f51b5','#607d8b','#009688'];
+
+function buildSigns() {
+  const grid = document.getElementById('signsGrid');
+  grid.innerHTML = SIGNS.map((s, i) => `
+    <div class="sign-item" onclick="showFortune(${i})" id="sign-${i}">
+      <span class="sign-icon">${s.emoji}</span>
+      <span class="sign-name">${s.name}</span>
+      <span class="sign-date">${s.date}</span>
+    </div>
+  `).join('');
+}
+
+function showFortune(idx) {
+  document.querySelectorAll('.sign-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('sign-' + idx).classList.add('active');
+
+  const s = SIGNS[idx];
+  const seed = idx * 7 + new Date().getDate();
+  const love = 30 + (seed % 60);
+  const work = 35 + ((seed * 3) % 55);
+  const money = 25 + ((seed * 5) % 65);
+
+  const colors = ['红色','蓝色','绿色','黄色','白色','黑色','紫色','粉色','橙色','灰色'];
+  const nums = [2,3,5,7,8,9,11,13,17,21,27,33];
+  const descs = [
+    '今天整体运势不错，适合主动出击。感情方面可能会有小惊喜，工作中要注意细节。保持积极心态，好运自然来。',
+    '今天适合沉淀和思考。财务方面可能有意外收获，感情需要多沟通。工作上按部就班即可，不要急于求成。',
+    '活力四射的一天！社交运旺盛，适合参加活动。感情方面适合表达心意，工作中会有贵人相助。',
+    '今天需要保持耐心。感情上可能有小摩擦但很快和好，工作进展平稳。适合规划未来方向。',
+    '幸运的一天！各方面都比较顺利。感情上有新的进展，工作上效率很高。适合做重要决定。',
+    '今天适合学习和充电。感情方面需要注意倾听对方，工作中可能有新的机会。保持低调务实。',
+  ];
+
+  const desc = descs[(seed + idx) % descs.length];
+  const luckyColor = colors[seed % colors.length];
+  const luckyNum = nums[(seed * 3) % nums.length];
+
+  document.getElementById('resultArea').innerHTML = `
+    <div class="result-card">
+      <div class="result-header">
+        <span class="result-icon">${s.emoji}</span>
+        <div class="result-sign">${s.name} · 今日运势</div>
+      </div>
+
+      <div class="fortune-row">
+        <div class="fortune-item">
+          <span class="fortune-label">爱情</span>
+          <span class="fortune-value">💕</span>
+          <div class="fortune-bar" style="margin-top:6px;height:6px;background:rgba(255,255,255,0.1);border-radius:3px;">
+            <div style="width:${love}%;height:100%;background:${COLORS[idx]};border-radius:3px;"></div>
+          </div>
+          <span class="fortune-text">${love}%</span>
+        </div>
+        <div class="fortune-item">
+          <span class="fortune-label">事业</span>
+          <span class="fortune-value">💼</span>
+          <div class="fortune-bar" style="margin-top:6px;height:6px;background:rgba(255,255,255,0.1);border-radius:3px;">
+            <div style="width:${work}%;height:100%;background:${COLORS[idx]};border-radius:3px;"></div>
+          </div>
+          <span class="fortune-text">${work}%</span>
+        </div>
+        <div class="fortune-item">
+          <span class="fortune-label">财运</span>
+          <span class="fortune-value">💰</span>
+          <div class="fortune-bar" style="margin-top:6px;height:6px;background:rgba(255,255,255,0.1);border-radius:3px;">
+            <div style="width:${money}%;height:100%;background:${COLORS[idx]};border-radius:3px;"></div>
+          </div>
+          <span class="fortune-text">${money}%</span>
+        </div>
+      </div>
+
+      <div class="lucky-section">
+        <span class="lucky-label">🍀 幸运色：${luckyColor}</span>
+        <span class="lucky-label" style="margin-left:20px;">🔢 幸运数字：${luckyNum}</span>
+      </div>
+
+      <div class="desc-text">${desc}</div>
+
+      <div class="share-row">
+        <button class="share-btn copy" onclick="copyLink()">📋 复制链接分享</button>
+        <button class="share-btn wx" onclick="shareWechat()">💬 微信分享</button>
+      </div>
+    </div>
+
+    <div class="wx-invite">
+      <div class="title">📲 加微信 · 获取每日运势提醒</div>
+      <div class="wxid">NovemberH_14</div>
+    </div>
+  `;
+}
+
+function copyLink() {
+  const url = window.location.href;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(() => alert('链接已复制，可以去微信粘贴分享了'));
+  } else {
+    prompt('复制这个链接分享：', url);
+  }
+}
+
+function shareWechat() {
+  alert('点击右上角「···」→ 分享给朋友 或 分享到朋友圈');
+}
+
+buildSigns();
+</script>
+</body>
+</html>

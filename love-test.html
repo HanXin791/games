@@ -84,6 +84,23 @@
         }
         .result-footer { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 0.9rem; }
 
+        .share-row { display: flex; gap: 10px; margin-top: 16px; }
+        .share-btn { flex: 1; padding: 14px; border-radius: 12px; border: none; font-size: 0.9em; cursor: pointer; }
+        .share-btn.copy { background: #e3f2fd; color: #1976d2; }
+        .share-btn.wx { background: #e8f5e9; color: #388e3c; }
+
+        .wx-invite {
+          text-align: center; margin-top: 18px; padding: 18px;
+          background: linear-gradient(135deg, #fff5f7, #fce4ec);
+          border-radius: 16px; border: 1px solid #ffcdd2;
+        }
+        .wx-invite .invite-title { font-size: 0.95em; font-weight: bold; color: #e92063; }
+        .wx-invite .invite-wx {
+          display: inline-block; margin-top: 8px; padding: 8px 20px;
+          background: #e92063; color: #fff; border-radius: 20px;
+          font-size: 0.9em; letter-spacing: 1px;
+        }
+
         @media (max-width: 640px) {
             .container { margin-top: 1rem; padding: 0.5rem; }
             .question-card, .result-card { padding: 1.5rem; }
@@ -130,7 +147,15 @@
                 <p>本测评结果仅供参考，如需专业帮助请咨询心理专家</p>
                 <p style="margin-top:5px;">© 恋爱占有欲指数测评系统</p>
             </div>
-            <button onclick="location.reload()" class="btn-next" style="margin-top:2rem;width:100%;">🔄 重新测试</button>
+            <div class="share-row">
+              <button class="share-btn copy" onclick="copyShare()">📋 复制链接分享</button>
+              <button class="share-btn wx" onclick="wxShare()">💬 微信分享</button>
+            </div>
+            <div class="wx-invite">
+              <div class="invite-title">📲 加微信 · 领更多专业心理测评</div>
+              <div class="invite-wx">NovemberH_14</div>
+            </div>
+            <button onclick="location.reload()" class="btn-next" style="margin-top:1.5rem;width:100%;">🔄 重新测试</button>
         </div>
     </main>
 
@@ -274,6 +299,18 @@ document.addEventListener('keydown', function(e) {
         if(['1','2','3','4','5'].includes(e.key)) selectOption(parseInt(e.key)-1);
     }
 });
+
+function copyShare() {
+  const url = window.location.href;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(() => alert('链接已复制，可以去微信粘贴分享了'));
+  } else {
+    prompt('复制链接分享：', url);
+  }
+}
+function wxShare() {
+  alert('点击右上角「···」→ 分享给朋友 或 分享到朋友圈');
+}
 
 renderQuestion();
 </script>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MBTI性格测试</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    min-height: 100vh;
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    color: #eee;
+    padding: 15px;
+  }
+  .wrapper { max-width: 550px; margin: 0 auto; }
+  .back-link { display:inline-block; margin-bottom:12px; padding:6px 16px; border:1px solid #888; color:#888; border-radius:20px; text-decoration:none; font-size:0.8em; }
+  h1 { text-align: center; font-size: 1.8em; margin-bottom: 5px; color: #4fc3f7; }
+  .subtitle { text-align: center; color: #888; font-size: 0.9em; margin-bottom: 16px; }
+
+  .card {
+    background: rgba(255,255,255,0.04); border-radius: 20px; padding: 24px;
+    border: 1px solid rgba(255,255,255,0.08); margin-bottom: 14px;
+    animation: fadeIn 0.4s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .progress-bar { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-bottom: 16px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #4fc3f7, #00bcd4); border-radius: 3px; transition: width 0.3s; }
+  .q-text { font-size: 1.05em; line-height: 1.6; margin-bottom: 16px; }
+
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .opt-btn {
+    padding: 14px 18px; border: 1px solid rgba(255,255,255,0.12); border-radius: 12px;
+    background: rgba(255,255,255,0.02); color: #ccc; font-size: 0.9em;
+    cursor: pointer; transition: all 0.2s; text-align: left;
+  }
+  .opt-btn:hover { border-color: #4fc3f7; background: rgba(79,195,247,0.08); }
+  .opt-btn:active { background: rgba(79,195,247,0.15); }
+
+  .result-card { text-align: center; animation: fadeIn 0.6s ease; }
+  .mbti-type { font-size: 3em; font-weight: 800; color: #4fc3f7; letter-spacing: 4px; margin: 10px 0; }
+  .result-title { font-size: 1.3em; font-weight: bold; margin-bottom: 12px; }
+  .result-desc { font-size: 0.9em; color: #aaa; line-height: 1.7; background: rgba(255,255,255,0.03); padding: 16px; border-radius: 12px; text-align: left; margin-bottom: 12px; }
+  .trait-row { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; margin-bottom: 14px; }
+  .trait-item { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 10px; text-align: center; }
+  .trait-label { font-size: 0.75em; color: #888; display: block; }
+  .trait-val { font-size: 0.95em; color: #4fc3f7; font-weight: bold; }
+
+  .share-row { display: flex; gap: 10px; margin-top: 14px; }
+  .share-btn {
+    flex: 1; padding: 12px; border-radius: 10px; border: none;
+    font-size: 0.9em; cursor: pointer;
+  }
+  .share-btn.copy { background: rgba(79,195,247,0.15); color: #4fc3f7; border: 1px solid rgba(79,195,247,0.3); }
+  .share-btn.wx { background: rgba(76,175,80,0.15); color: #4caf50; border: 1px solid rgba(76,175,80,0.3); }
+
+  .wx-invite {
+    text-align: center; margin-top: 14px; padding: 16px;
+    background: linear-gradient(135deg, rgba(76,175,80,0.1), rgba(79,195,247,0.08));
+    border-radius: 14px; border: 1px solid rgba(76,175,80,0.2);
+  }
+  .wx-invite .title { font-size: 0.9em; font-weight: bold; color: #4caf50; }
+  .wx-invite .wxid { display: inline-block; margin-top: 6px; padding: 6px 18px; background: rgba(76,175,80,0.2); border-radius: 20px; font-size: 0.85em; color: #4fc3f7; letter-spacing: 1px; }
+
+  .nav-links { text-align: center; margin-top: 18px; }
+  .nav-links a { padding: 6px 14px; border: 1px solid #555; color: #888; border-radius: 20px; text-decoration: none; font-size: 0.78em; margin: 3px; display: inline-block; }
+
+  @media (max-width: 400px) {
+    h1 { font-size: 1.4em; }
+    .q-text { font-size: 0.95em; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <a href="index.html" class="back-link">← 返回首页</a>
+  <h1>🧠 MBTI 性格测试</h1>
+  <p class="subtitle">16种人格类型，你是哪一种？</p>
+
+  <div id="quizArea"></div>
+  <div id="resultArea"></div>
+
+  <div class="nav-links">
+    <a href="games.html">小游戏</a>
+    <a href="love-test.html">恋爱测评</a>
+    <a href="horoscope.html">星座运势</a>
+    <a href="feedback.html">留言板</a>
+  </div>
+</div>
+
+<script>
+const questions = [
+  { text: '参加聚会时，你通常会？', a: '与很多人聊天，认识新朋友', b: '与少数熟人深入交流', dim: 'EI' },
+  { text: '学习新事物时，你更倾向于？', a: '先了解整体框架和概念', b: '先掌握具体细节和步骤', dim: 'SN' },
+  { text: '做决定时，你更多依靠？', a: '逻辑分析和客观事实', b: '个人感受和价值观', dim: 'TF' },
+  { text: '安排日程时，你更喜欢？', a: '提前计划好一切', b: '随性而为，灵活应变', dim: 'JP' },
+  { text: '在团队中，你通常？', a: '主动发言，引导讨论', b: '倾听观察，深思后发言', dim: 'EI' },
+  { text: '你更喜欢哪种工作方式？', a: '探索创新的可能性', b: '按照成熟的方法执行', dim: 'SN' },
+  { text: '批评别人时，你更看重？', a: '指出问题，客观分析', b: '顾及对方感受，委婉表达', dim: 'TF' },
+  { text: '截止日期临近，你通常？', a: '已经提前完成了', b: '在最后冲刺完成', dim: 'JP' },
+  { text: '周末你更想？', a: '约朋友出去玩', b: '一个人安静待着', dim: 'EI' },
+  { text: '理解一个概念时你偏向？', a: '用比喻和联想来理解', b: '用数据和事实来验证', dim: 'SN' },
+  { text: '处理矛盾时你更？', a: '坚持公平公正的原则', b: '维护人际关系的和谐', dim: 'TF' },
+  { text: '旅行时你更喜欢？', a: '提前做好详细攻略', b: '到了再说，随遇而安', dim: 'JP' },
+];
+
+const MBTI_DESCS = {
+  'INTJ': { title: '建筑师', desc: '你具有战略性思维，善于长远规划。你独立、果断，喜欢按自己的标准做事。你对知识有极强的渴求，是天生的问题解决者。工作中你追求效率，生活中你重视深度关系。' },
+  'INTP': { title: '逻辑学家', desc: '你拥有极强的分析能力和创造力。你喜欢思考抽象概念，追求真理。你思维灵活开放，能够在复杂问题中发现规律。社交中你偏爱理性的交流。' },
+  'ENTJ': { title: '指挥官', desc: '你天生具有领导才能，大胆果敢。你目标明确，行动力强，善于调动资源达成目标。你喜欢挑战，在压力下依然能做出果断决策。' },
+  'ENTP': { title: '辩论家', desc: '你思维敏捷，善于即兴发挥。你喜欢智力上的交锋，好奇心驱使你不断探索新事物。你幽默风趣，能够从多角度看待问题。' },
+  'INFJ': { title: '提倡者', desc: '你理想主义但脚踏实地，你追求意义和使命感。你善于洞察他人内心，有着强烈的同理心。你安静但坚定，会为自己相信的事情不懈努力。' },
+  'INFP': { title: '调停者', desc: '你内心充满理想和善意，渴望让世界变得更好。你富有创造力，重视真实和深度。你对美和意义有独特的感知力，是真正的心灵探索者。' },
+  'ENFJ': { title: '主人公', desc: '你富有魅力，善于激励他人。你天生的领导力来自于对他人的真诚关怀。你善于发现他人潜力，帮助别人成长是你最大的动力。' },
+  'ENFP': { title: '竞选者', desc: '你热情洋溢，充满创造力。你对生活充满好奇心，喜欢探索各种可能性。你的热情会感染身边的人，是团队的活力源泉。' },
+  'ISTJ': { title: '物流师', desc: '你踏实可靠，注重事实和细节。你做事有条不紊，极度负责。你重视传统和秩序，是团队中最稳定的力量。你言出必行，值得信赖。' },
+  'ISFJ': { title: '守卫者', desc: '你默默奉献，细心周到。你善于照顾他人感受，有着超强的记忆力。你重视稳定和安全，用实际行动保护你关心的人。' },
+  'ESTJ': { title: '总经理', desc: '你务实高效，善于组织和管理。你做事雷厉风行，追求结果。你重视规则和流程，能够带领团队完成艰巨任务。' },
+  'ESFJ': { title: '执政官', desc: '你热心周到，善于协调人际关系。你喜欢帮助他人，在社交中游刃有余。你重视和谐，是团队中最可靠的支柱。' },
+  'ISTP': { title: '鉴赏家', desc: '你冷静务实，动手能力强。你善于分析问题并找到实际解决方案。你喜欢自由，对新事物的接受度极高。危机时刻你是最沉稳的人。' },
+  'ISFP': { title: '探险家', desc: '你温和灵活，用自己的方式探索世界。你对美感敏锐，享受当下的体验。你低调但富有魅力，善于用行动而非言语表达关怀。' },
+  'ESTP': { title: '企业家', desc: '你精力充沛，行动力超强。你喜欢冒险，享受当下的刺激。你反应迅速，善于抓住机会。你的自信和魅力让人印象深刻。' },
+  'ESFP': { title: '表演者', desc: '你是天生的开心果，喜欢成为焦点。你活在当下，享受生活中的每一刻。你热情大方，善于带动氛围，是大家的快乐源泉。' },
+};
+
+let answers = new Array(questions.length).fill(null);
+let currentQ = 0;
+
+function renderQuestion() {
+  const q = questions[currentQ];
+  const progress = ((currentQ + 1) / questions.length) * 100;
+
+  document.getElementById('quizArea').innerHTML = `
+    <div class="card">
+      <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+      <div style="font-size:0.8em;color:#888;margin-bottom:6px;">第 ${currentQ+1}/${questions.length} 题</div>
+      <div class="q-text">${q.text}</div>
+      <div class="options">
+        <button class="opt-btn" onclick="answer('a')">A. ${q.a}</button>
+        <button class="opt-btn" onclick="answer('b')">B. ${q.b}</button>
+      </div>
+    </div>
+  `;
+}
+
+function answer(choice) {
+  answers[currentQ] = choice;
+  if (currentQ < questions.length - 1) {
+    currentQ++;
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  document.getElementById('quizArea').innerHTML = '';
+
+  let scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+  questions.forEach((q, i) => {
+    const dim = q.dim;
+    if (answers[i] === 'a') scores[dim[0]]++;
+    else scores[dim[1]]++;
+  });
+
+  const type = [
+    scores.E >= scores.I ? 'E' : 'I',
+    scores.S >= scores.N ? 'S' : 'N',
+    scores.T >= scores.F ? 'T' : 'F',
+    scores.J >= scores.P ? 'J' : 'P',
+  ].join('');
+
+  const info = MBTI_DESCS[type] || { title: '独特型', desc: '你是独一无二的个体，拥有多种特质的组合。' };
+
+  document.getElementById('resultArea').innerHTML = `
+    <div class="card result-card">
+      <div class="mbti-type">${type}</div>
+      <div class="result-title">${info.title}</div>
+      <div class="trait-row">
+        <div class="trait-item"><span class="trait-label">E外向 / I内向</span><span class="trait-val">${scores.E} - ${scores.I}</span></div>
+        <div class="trait-item"><span class="trait-label">S实感 / N直觉</span><span class="trait-val">${scores.S} - ${scores.N}</span></div>
+        <div class="trait-item"><span class="trait-label">T理性 / F感性</span><span class="trait-val">${scores.T} - ${scores.F}</span></div>
+        <div class="trait-item"><span class="trait-label">J判断 / P感知</span><span class="trait-val">${scores.J} - ${scores.P}</span></div>
+      </div>
+      <div class="result-desc">${info.desc}</div>
+
+      <div class="share-row">
+        <button class="share-btn copy" onclick="copyLink()">📋 复制链接分享</button>
+        <button class="share-btn wx" onclick="shareWechat()">💬 微信分享</button>
+      </div>
+    </div>
+
+    <div class="wx-invite">
+      <div class="title">📲 加微信 · 领取MBTI完整分析报告</div>
+      <div class="wxid">NovemberH_14</div>
+    </div>
+  `;
+}
+
+function copyLink() {
+  const url = window.location.href;
+  if (navigator.clipboard) { navigator.clipboard.writeText(url).then(() => alert('链接已复制，可以去微信粘贴分享了')); }
+  else { prompt('复制这个链接分享：', url); }
+}
+function shareWechat() { alert('点击右上角「···」→ 分享给朋友 或 分享到朋友圈'); }
+
+renderQuestion();
+</script>
+</body>
+</html>
